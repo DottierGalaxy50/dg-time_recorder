@@ -1,0 +1,97 @@
+﻿<Window x:Class="TimeRecorder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TimeRecorder"
+        mc:Ignorable="d"
+        StateChanged="Window_StateChanged"
+        Title="Time Recorder" Height="500" Width="1080">
+    <Window.DataContext>
+        <local:Processes/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+        </Grid.ColumnDefinitions>
+
+        <DataGrid x:Name="ProcessViewList" x:FieldModifier="public" Grid.Row="2" Grid.Column="1" FontSize="14" ItemsSource="{Binding ProcessList, UpdateSourceTrigger=PropertyChanged}"
+            AutoGenerateColumns="False" CanUserAddRows="False" RowHeaderWidth="0">
+
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="IsHitTestVisible" Value="False"/>
+                    <Setter Property="TextBlock.VerticalAlignment" Value="Center" />
+                    <Setter Property="BorderThickness" Value="2,2,2,2"/>
+                </Style>
+            </DataGrid.CellStyle>
+
+            <DataGrid.Columns>
+
+                <DataGridTemplateColumn Header=" " Width="25" 
+                    IsReadOnly="True">
+
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Height="20" Width="20" Source="{Binding Ico}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!--<DataGridCheckBoxColumn Header="Record"
+                                    Binding="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>-->
+                <DataGridTextColumn Header="Program Name" FontSize="15"
+                                    Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Process Name" FontSize="15" Width="120"
+                                    Binding="{Binding PName, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Window Title" FontSize="15" Width="120"
+                                    Binding="{Binding WndName, UpdateSourceTrigger=PropertyChanged}"/>
+                <!--<DataGridTextColumn Header="Directory"
+                                    Binding="{Binding Dir, UpdateSourceTrigger=PropertyChanged}"/>-->
+                <DataGridTextColumn Header="Total Hours" FontSize="15"
+                                    Binding="{Binding ViewHours, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                <DataGridTextColumn Header="Minimized" FontSize="15"
+                                    Binding="{Binding ViewMinH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                <DataGridTextColumn Header="Focused" FontSize="15"
+                                    Binding="{Binding ViewFocusH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                <DataGridTextColumn Header="+Inputs:" FontSize="15"
+                                    Binding="{Binding ViewInputH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                <DataGridTextColumn Header="K" FontSize="15"
+                                    Binding="{Binding ViewInputKeyH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                <DataGridTextColumn Header="M" FontSize="15"
+                                    Binding="{Binding ViewInputMouseH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                <DataGridTextColumn Header="K+M" FontSize="15"
+                                    Binding="{Binding ViewInputKMH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                <DataGridTextColumn Header="C" FontSize="15"
+                                    Binding="{Binding ViewInputJoyH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                <DataGridTextColumn Header="First Recorded Date" FontSize="15"
+                                    Binding="{Binding First, UpdateSourceTrigger=PropertyChanged}"/>
+                <DataGridTextColumn Header="Last Recorded Date" FontSize="15"
+                                    Binding="{Binding Last, UpdateSourceTrigger=PropertyChanged}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="1" Grid.Column="1" FontSize="15" Text="Records and saves the runtime of the elements on the list."/>
+        <TextBlock Grid.Row="3" Grid.Column="1" FontSize="10" HorizontalAlignment="Right" Text="ver 1.0.  By DottierGalaxy50" Foreground="Gray"/>
+
+        <Button Grid.Row="1" Grid.Column="1" x:Name="AddButton"
+                Width="100"
+                Height="25"
+                HorizontalAlignment="Right"
+                Click="AddButton_Click"
+                Content="Add Program"/>
+
+        <!--<CheckBox Grid.Row="1" Grid.Column="1" x:Name="BoxStartup"
+                HorizontalAlignment="Right"
+                Click="BoxStartup_Click"
+                Content="Startup App" Margin="0,15,110,0"/>-->
+    </Grid>
+</Window>
