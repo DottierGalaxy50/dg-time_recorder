@@ -24,10 +24,12 @@ namespace TimeRecorder
         ManagementEventWatcher processStopEvent = new ManagementEventWatcher(@"\\.\root\CIMV2", "SELECT * FROM __InstanceDeletionEvent WITHIN .025 WHERE TargetInstance ISA 'Win32_Process'");
 
         static List<PHook> PHooks = new List<PHook>();
+        public static Stopwatch TimeSinceStart = new Stopwatch();
 
         public App()
         {
             InitializeAppSettingsFile();
+            TimeSinceStart.Start();
 
             _notifyIcon = new Forms.NotifyIcon();
 
@@ -576,7 +578,7 @@ namespace TimeRecorder
                         PName = Name,
                         WndName = plist[i].WndName,
                         AddHours = plist[i].Hours,
-                        TimeTick = DateTime.UtcNow.Ticks,
+                        TimeTick = TimeSinceStart.ElapsedMilliseconds,
                         InputWaitT = plist[i].InputWaitT,
                         InputSaveT = plist[i].InputSaveT
                     });
@@ -588,7 +590,7 @@ namespace TimeRecorder
                         IDs = new List<int> { pid },
                         PName = Name,
                         AddHours = plist[i].Hours,
-                        TimeTick = DateTime.UtcNow.Ticks,
+                        TimeTick = TimeSinceStart.ElapsedMilliseconds,
                         InputWaitT = plist[i].InputWaitT,
                         InputSaveT = plist[i].InputSaveT
                     });
@@ -614,7 +616,7 @@ namespace TimeRecorder
 
             rlist[i2].IsFocus = true;
             rlist[i2].AddFocusH = plist[i].FocusH;
-            rlist[i2].FocusTick = DateTime.UtcNow.Ticks;
+            rlist[i2].FocusTick = TimeSinceStart.ElapsedMilliseconds;
             //Console.WriteLine("***Added Focus*** " + i + " " + i2);
         }
 
@@ -672,8 +674,8 @@ namespace TimeRecorder
                         if (rlist[i].PName.Equals(plist[i2].PName) && rlist[i].WndName == wndname)
                         {
                             rlist[i].IsFocus = false;
-                            long elapsedTicks = DateTime.UtcNow.Ticks - rlist[i].FocusTick;
-                            long newFocusH = rlist[i].AddFocusH + (long)(new TimeSpan(elapsedTicks).TotalMilliseconds);
+                            long elapsedTicks = TimeSinceStart.ElapsedMilliseconds-rlist[i].FocusTick;
+                            long newFocusH = rlist[i].AddFocusH+elapsedTicks;
                             plist[i2].FocusH = newFocusH;
                             plist[i2].ViewFocusH = (float)newFocusH / 3600000;
                             //Console.WriteLine("***Removed Focus Name*** " + rlist[i].WndName + " " + wndname);
@@ -759,7 +761,7 @@ namespace TimeRecorder
                     if (!rlist[i].IsMin)
                     {                   
                         rlist[i].IsMin = true;
-                        rlist[i].MinTick = DateTime.UtcNow.Ticks;
+                        rlist[i].MinTick = TimeSinceStart.ElapsedMilliseconds;
 
                         for (int i2 = 0; i2 < plist.Count; i2++)
                         {
@@ -784,8 +786,8 @@ namespace TimeRecorder
                             string wndname = plist[i2].WndName; if (!plist[i2].RecordWnd) { wndname = null; } // just want to be done with this
                             if (rlist[i].PName.Equals(plist[i2].PName) && rlist[i].WndName == wndname)
                             {
-                                long elapsedTicks = DateTime.UtcNow.Ticks-rlist[i].MinTick;
-                                long newMinH = rlist[i].AddMinH+(long)(new TimeSpan(elapsedTicks).TotalMilliseconds);
+                                long elapsedTicks = TimeSinceStart.ElapsedMilliseconds-rlist[i].MinTick;
+                                long newMinH = rlist[i].AddMinH+elapsedTicks;
                                 plist[i2].MinH = newMinH;
                                 plist[i2].ViewMinH = (float)newMinH/3600000;
                                 //Console.WriteLine("***Removed Min*** " + i2 + " " + i);
@@ -946,7 +948,7 @@ namespace TimeRecorder
         {
             string[] fileLines = new string[]{};
 
-            long currentDateTick = DateTime.UtcNow.Ticks;
+            long currentDateTick = TimeSinceStart.ElapsedMilliseconds;
             string currentDate = DateTime.Now.ToString();
 
             for (int i = 0; i <= NumOfRetries; ++i) // try catch statements had to be used on this function because of erros while opening or exiting games.
@@ -1011,8 +1013,7 @@ namespace TimeRecorder
                         string reallast = line.Split(',').ElementAt(18);
 
                         long elapsedTicks = currentDateTick-rlist[i].TimeTick;
-                        long elapsedSpan = (long)(new TimeSpan(elapsedTicks).TotalMilliseconds);
-                        long newHours = rlist[i].AddHours+elapsedSpan;
+                        long newHours = rlist[i].AddHours+elapsedTicks;
 
                         long newMinH = Processes.ProcessList[pid].MinH;
                         long newFocusH = Processes.ProcessList[pid].FocusH;
@@ -1025,50 +1026,48 @@ namespace TimeRecorder
                         if (rlist[i].IsMin)
                         {
                             elapsedTicks = currentDateTick-rlist[i].MinTick;
-                            elapsedSpan = (long)(new TimeSpan(elapsedTicks).TotalMilliseconds);
-                            newMinH = rlist[i].AddMinH+elapsedSpan;
+                            newMinH = rlist[i].AddMinH+elapsedTicks;
                             Processes.ProcessList[pid].MinH = newMinH;
                             Processes.ProcessList[pid].ViewMinH = (float)newMinH/3600000;
                         }
                         if (rlist[i].IsFocus)
                         {
                             elapsedTicks = currentDateTick-rlist[i].FocusTick;
-                            elapsedSpan = (long)(new TimeSpan(elapsedTicks).TotalMilliseconds);
-                            newFocusH = rlist[i].AddFocusH+elapsedSpan;
+                            newFocusH = rlist[i].AddFocusH+elapsedTicks;
                             Processes.ProcessList[pid].FocusH = newFocusH;
                             Processes.ProcessList[pid].ViewFocusH = (float)newFocusH/3600000;
                         }
                         if (rlist[i].IsInputKey)
                         {
-                            elapsedTicks = (currentDateTick/10000)-rlist[i].InputKeyTick;
+                            elapsedTicks = currentDateTick-rlist[i].InputKeyTick;
                             newInputKeyH = rlist[i].AddInputKeyH + elapsedTicks;
                             Processes.ProcessList[pid].InputKeyH = newInputKeyH;
                             Processes.ProcessList[pid].ViewInputKeyH = (float)newInputKeyH/3600000;
                         }
                         if (rlist[i].IsInputMouse)
                         {
-                            elapsedTicks = (currentDateTick/10000)-rlist[i].InputMouseTick;
+                            elapsedTicks = currentDateTick-rlist[i].InputMouseTick;
                             newInputMouseH = rlist[i].AddInputMouseH + elapsedTicks;
                             Processes.ProcessList[pid].InputMouseH = newInputMouseH;
                             Processes.ProcessList[pid].ViewInputMouseH = (float)newInputMouseH/3600000;
                         }
                         if (rlist[i].IsInputJoy)
                         {
-                            elapsedTicks = (currentDateTick/10000)-rlist[i].InputJoyTick;
+                            elapsedTicks = currentDateTick-rlist[i].InputJoyTick;
                             newInputJoyH = rlist[i].AddInputJoyH + elapsedTicks;
                             Processes.ProcessList[pid].InputJoyH = newInputJoyH;
                             Processes.ProcessList[pid].ViewInputJoyH = (float)newInputJoyH/3600000;
                         }
                         if (rlist[i].IsInputKey || rlist[i].IsInputMouse)
                         {
-                            elapsedTicks = (currentDateTick/10000)-rlist[i].InputKMTick;
+                            elapsedTicks = currentDateTick-rlist[i].InputKMTick;
                             newInputKMH = rlist[i].AddInputKMH + elapsedTicks;
                             Processes.ProcessList[pid].InputKMH = newInputKMH;
                             Processes.ProcessList[pid].ViewInputKMH = (float)newInputKMH/3600000;
                         }
                         if (rlist[i].IsInputKey || rlist[i].IsInputMouse || rlist[i].IsInputJoy)
                         {
-                            elapsedTicks = (currentDateTick/10000)-rlist[i].InputTick;
+                            elapsedTicks = currentDateTick-rlist[i].InputTick;
                             newInputH = rlist[i].AddInputH + elapsedTicks;
                             Processes.ProcessList[pid].InputH = newInputH;
                             Processes.ProcessList[pid].ViewInputH = (float)newInputH/3600000;

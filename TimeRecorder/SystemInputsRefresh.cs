@@ -29,14 +29,14 @@ namespace TimeRecorder
                 if (GetKeyState(i) < 0)
                 {
                     //Console.WriteLine("keyboard: " + i + " " + Environment.TickCount);
-                    lastKeyboardChange = DateTime.UtcNow.Ticks/10000;
+                    lastKeyboardChange = App.TimeSinceStart.ElapsedMilliseconds;
                     return true;
                 }
             }
             if (GetKeyState(3) < 0)
             {
                 //Console.WriteLine("keyboard: 3 " + Environment.TickCount);
-                lastKeyboardChange = DateTime.UtcNow.Ticks/10000;
+                lastKeyboardChange = App.TimeSinceStart.ElapsedMilliseconds;
                 return true;
             }
 
@@ -52,13 +52,13 @@ namespace TimeRecorder
                 //Console.WriteLine("change: " + currentCursorPos.x + " " + currentCursorPos.y + " " + Environment.TickCount);
                 lastCursorPos.x = currentCursorPos.x;
                 lastCursorPos.y = currentCursorPos.y;
-                lastMouseChange = DateTime.UtcNow.Ticks/10000;
+                lastMouseChange = App.TimeSinceStart.ElapsedMilliseconds;
                 return true;
             }
             if (GetKeyState(1) < 0 || GetKeyState(2) < 0 || GetKeyState(4) < 0 || GetKeyState(5) < 0 || GetKeyState(6) < 0)
             {
                 //Console.WriteLine("mouse:" + Environment.TickCount);
-                lastMouseChange = DateTime.UtcNow.Ticks/10000;
+                lastMouseChange = App.TimeSinceStart.ElapsedMilliseconds;
                 return true;
             }
 
@@ -74,7 +74,7 @@ namespace TimeRecorder
                     if (JoystickInfo.dwButtonNumber != 0)
                     {
                         //Console.WriteLine("Pushing button: " + i + " " + Environment.TickCount);
-                        lastJoystickChange = DateTime.UtcNow.Ticks/10000;
+                        lastJoystickChange = App.TimeSinceStart.ElapsedMilliseconds;
                         return true;
                     }
 
@@ -90,7 +90,7 @@ namespace TimeRecorder
                     ((JoystickCapInfo.wCaps & 8) != 0 && Math.Abs((int)JoystickInfo.dwVpos-(JoystickCapInfo.wVmin+JoystickCapInfo.wVmax)/2) > JoystickThreshold+CustomJoyDeadZone))
                     {
                         //Console.WriteLine("Moving Axis: " + i + " " + Environment.TickCount);
-                        lastJoystickChange = DateTime.UtcNow.Ticks/10000;
+                        lastJoystickChange = App.TimeSinceStart.ElapsedMilliseconds;
                         return true;
                     }
                 }
@@ -208,7 +208,7 @@ namespace TimeRecorder
 
             if (rlist[i].IsInputKey)
             {
-                long tSinceChange = (DateTime.UtcNow.Ticks/10000)-rlist[i].LastInputKeyTick;
+                long tSinceChange = (App.TimeSinceStart.ElapsedMilliseconds)-rlist[i].LastInputKeyTick;
                 //Console.WriteLine("InputWaitT Key: " + wait + " " + tSinceChange);
                 if (wait <= tSinceChange)
                 {
@@ -217,7 +217,7 @@ namespace TimeRecorder
             }
             if (rlist[i].IsInputJoy)
             {
-                long tSinceChange = (DateTime.UtcNow.Ticks/10000)-rlist[i].LastInputJoyTick;
+                long tSinceChange = (App.TimeSinceStart.ElapsedMilliseconds)-rlist[i].LastInputJoyTick;
                 //Console.WriteLine("InputWaitT Joy: " + wait + " " + tSinceChange);
                 if (wait <= tSinceChange)
                 {
@@ -226,7 +226,7 @@ namespace TimeRecorder
             }
             if (rlist[i].IsInputMouse)
             {
-                long tSinceChange = (DateTime.UtcNow.Ticks/10000)- rlist[i].LastInputMouseTick;
+                long tSinceChange = (App.TimeSinceStart.ElapsedMilliseconds)- rlist[i].LastInputMouseTick;
                 //Console.WriteLine("InputWaitT Mouse: " + wait + " " + tSinceChange);
                 if (wait <= tSinceChange)
                 {

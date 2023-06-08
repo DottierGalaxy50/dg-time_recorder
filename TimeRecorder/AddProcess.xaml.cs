@@ -209,24 +209,6 @@ namespace TimeRecorder
             }
             list.Add(process);
 
-            using (var searcher = new ManagementObjectSearcher("SELECT ProcessId FROM Win32_Process"))
-            using (var results = searcher.Get())
-            {
-                var query = from p in Process.GetProcessesByName(pname)
-                            join mo in results.Cast<ManagementObject>()
-                            on p.Id equals (int)(uint)mo["ProcessId"]
-                            select new
-                            {
-                                //Process = p,
-                                Id = (int)(uint)mo["ProcessId"],
-                            };
-
-                foreach (var p in query)
-                {
-                    App.AddRunningProcess(p.Id, IntPtr.Zero);
-                }
-            }
-
             string programPath = Directory.GetCurrentDirectory();
             string dataFolder = @"\data";
             string listFile = @"\processlist.csv";
@@ -254,6 +236,24 @@ namespace TimeRecorder
                 $"{datetime}," +
                 $"{datetime}" +
             $"\n");
+
+            using (var searcher = new ManagementObjectSearcher("SELECT ProcessId FROM Win32_Process"))
+            using (var results = searcher.Get())
+            {
+                var query = from p in Process.GetProcessesByName(pname)
+                            join mo in results.Cast<ManagementObject>()
+                            on p.Id equals (int)(uint)mo["ProcessId"]
+                            select new
+                            {
+                                //Process = p,
+                                Id = (int)(uint)mo["ProcessId"],
+                            };
+
+                foreach (var p in query)
+                {
+                    App.AddRunningProcess(p.Id, IntPtr.Zero);
+                }
+            }
 
             Close();
         }
