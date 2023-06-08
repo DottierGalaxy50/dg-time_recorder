@@ -68,17 +68,16 @@ namespace TimeRecorder
 
         private void RefreshList(object sender, ElapsedEventArgs e)
         {
-
             Application.Current.Dispatcher.Invoke(new Action(() => {
                 ProcessViewList.Items.Refresh();
             }));
-
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            AddProcess addwindow = new AddProcess();
-            addwindow.Show();
+            if (AddProcess.IsOpen) { AddProcess.AddProcessWnd.Focus(); return; }
+            AddProcess.AddProcessWnd = new AddProcess();
+            AddProcess.AddProcessWnd.Show();
         }
 
         //private void BoxStartup_Click(object sender, RoutedEventArgs e)
@@ -114,9 +113,9 @@ namespace TimeRecorder
 
         protected override void OnClosed(EventArgs e)
         {
+            base.OnClosed(e);
             Application.Current.Shutdown();
             rtimer.Dispose();
-            base.OnClosed(e);
         }
     }
 

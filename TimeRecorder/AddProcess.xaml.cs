@@ -7,15 +7,24 @@ using System.Management;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using System.Diagnostics;
-using System.Windows.Controls;
 
 namespace TimeRecorder
 {
     public partial class AddProcess : Window
     {
+        public static bool IsOpen = false;
+        public static AddProcess AddProcessWnd;
+
         public AddProcess()
         {
             InitializeComponent();
+            IsOpen = true;
+        }
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            IsOpen = false;
+            AddProcessWnd = null;
         }
 
         private void AddFind_Click(object sender, RoutedEventArgs e)
@@ -38,17 +47,29 @@ namespace TimeRecorder
             e.Handled = regex.IsMatch(e.Text);
         }
 
-        private void InputWaitTextChange(object sender, TextChangedEventArgs e)
+        private void InputWaitTextChange(object sender, EventArgs e)
         {
             float inputwait;
+            bool isNum = float.TryParse(InputWaitTextBox.Text, out inputwait);
 
-            if (float.TryParse(InputWaitTextBox.Text, out inputwait) && inputwait < 0.05)
+            if (isNum)
             {
-                InputWaitTextBox.Text = "0.05";
+                if (inputwait < 0.05)
+                {
+                    inputwait = 0.05f;
+                    InputWaitTextBox.Text = "0.05";
+                }
+
+                float inputsave;
+                bool isNum2 = float.TryParse(InputSaveTextBox.Text, out inputsave);
+
+                if (isNum2 && inputsave > inputwait)
+                {
+                    InputSaveTextBox.Text = InputWaitTextBox.Text;
+                }
             }
         }
-
-        private void InputSaveTextChange(object sender, TextChangedEventArgs e)
+        private void InputSaveTextChange(object sender, EventArgs e)
         {
             float inputwait;
             float inputsave;
@@ -57,6 +78,19 @@ namespace TimeRecorder
             {
                 InputSaveTextBox.Text = InputWaitTextBox.Text;
             }
+        }
+
+        private void WaitTextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            e.Handled = true;
+            InputWaitTextChange(null,null);
+        }
+        private void SaveTextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+            e.Handled = true;
+            InputSaveTextChange(null, null);
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)

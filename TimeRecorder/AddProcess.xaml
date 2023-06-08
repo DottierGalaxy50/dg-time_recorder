@@ -39,12 +39,12 @@
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="WndNameTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="100" MaxLength="50" MaxLines="1" Margin="191,113,0,0" Width="170"/>
 
         <Label Grid.Row="1" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Seconds to keep recording for after an input:" Margin="19,148,0,0" Grid.ColumnSpan="2"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="InputWaitTextBox" TextWrapping="Wrap" Text="1.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="286,153,0,0" PreviewTextInput="NumbericTextInput" TextChanged="InputWaitTextChange"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="InputWaitTextBox" TextWrapping="Wrap" Text="1.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="286,153,0,0" PreviewTextInput="NumbericTextInput" LostFocus="InputWaitTextChange" KeyUp="WaitTextBox_KeyUp"/>
 
         <Label Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,182,0,0" Grid.ColumnSpan="2">
             <TextBlock FontSize="14" Text="Amount of seconds to save if there were no new inputs while recording for&#x0a;the specified amount above:" />
         </Label>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="InputSaveTextBox" TextWrapping="Wrap" Text="0.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="185,209,0,0" PreviewTextInput="NumbericTextInput" TextChanged="InputSaveTextChange"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="InputSaveTextBox" TextWrapping="Wrap" Text="0.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="185,209,0,0" PreviewTextInput="NumbericTextInput" LostFocus="InputSaveTextChange" KeyUp="SaveTextBox_KeyUp"/>
 
         <Button Grid.Row="1" Grid.Column="1" x:Name="AddButton"
                 Width="100"

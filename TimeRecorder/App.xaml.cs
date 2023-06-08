@@ -41,6 +41,8 @@ namespace TimeRecorder
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            base.OnStartup(e);
+
             _notifyIcon.Icon = Icon.ExtractAssociatedIcon(Directory.GetCurrentDirectory()+@"\"+Process.GetCurrentProcess().ProcessName+".exe");
             _notifyIcon.Text = "Time Recorder";
             _notifyIcon.MouseClick += NotifyIcon_Click;
@@ -50,8 +52,6 @@ namespace TimeRecorder
             _notifyIcon.ContextMenuStrip.Items.Add("Exit", null, Exit_Click);
 
             _notifyIcon.Visible = true;
-
-            base.OnStartup(e);
         }
 
         private void InitializeAppSettingsFile()
@@ -1103,6 +1103,8 @@ namespace TimeRecorder
 
         protected override void OnExit(ExitEventArgs e)
         {
+            base.OnExit(e);
+
             _notifyIcon?.Dispose();
             rtimer?.Dispose();
             UnhookWinEvent(FocusPEventHook);
@@ -1112,8 +1114,6 @@ namespace TimeRecorder
                 rtimer_Tick(null);
             }
             rtimer?.Dispose();
-
-            base.OnExit(e);
         }
     }
 
