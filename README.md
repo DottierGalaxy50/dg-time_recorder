@@ -20,8 +20,8 @@ The only way to **change of position**, **modify** or **delete elements from the
 
 Data order:
 
-1. **Enabled** - Unused. (either 0/1).
-2. **Record Window** - (either 0/1).
+1. **Enabled** - Unused. (0/1).
+2. **Record Window** - (0/1).
 3. **Match Mode** - (0: Find Sequence/1: Match Exactly).
 4. **Name**.
 5. **Process Name** - Exact process name. (Executable name + .exe).
@@ -42,7 +42,7 @@ Data order:
 
 The hours are actually saved has miliseconds on the file, so if you want to know how much is it or want to add your own values you will have to make the conversion.
 
-The __"settings"__ file has only one value, it represents a __custom controller joystick deadzone threshold__, the value is summed with Windows own deadzone threshold. If the threshold is surpassed it will start recording joystick movement inputs. I used this for a controller emulator that didn't centered correctly. The default value of 1 is extremely small, if you will use this program with a controller make sure it only records it when you are actually moving your joysticks if you care about that. 
+The __"settings"__ file has only one value, it represents a __custom controller joystick deadzone threshold__, the value is summed with Windows own deadzone threshold. If the threshold is surpassed it will start recording joystick movement inputs. I used this for a controller emulator that didn't centered correctly. The default value of 50 is actually pretty low, if you will use this program with a controller make sure it only records it when you are actually moving your joysticks if you care about that. 
 
 ## Other issues, details and limitations
 - **The program can't differentiate elements with the same process name but than have different paths**, this is because the program's path is only utilized for the element icon on the UI at the moment. This wasn't the case while making the program, but later i found out that a program without a Microsoft certificate or admin privileges can't get the path of another that has elevated privileges. I could make it so if a process path cannot be obtained it just ignores checking the path and make it only check the process name, that way making anyone who wants to distinguish between elements that have the same process name but different paths able to, that way making this capable of getting the elevated privileges programs paths if this is run with admin privileges as well. I didn't do this because it was more work and i saw it as an inconvenience with low probability of being an issue, and i didn't wanted to force anyone to run this program with admin privileges.
@@ -50,6 +50,8 @@ The __"settings"__ file has only one value, it represents a __custom controller 
 - Because of the same issue described above, receiving devices inputs that aren't from a controller wasn't really easily achievable, the only way to get the inputs on an elevated privileges program while this one isn't is to check the status of the individual virtual-keys, this only works for buttons, that means that some mouse inputs are an issue, **detecting mouse wheel movements globally are straight up impossible without hooks and for detecting mouse movements it gets the current cursor position and compares it with the last one, this makes it a bit unreliable on videogames because some of them try to keep the cursor at the same position, and there might be some out there that may stop it completely**, but i haven't found one yet. This could be improved with the use of hooks and the same ideas as described before, but i didn't because of the same reasons.
 
 - **The minimized time only starts getting recorded when all the windows that match the element are minimized**, this can be an issue because there could be more windows on a process that the ones you interact with or see, these windows will always be considered non-minimized, a filter is used to determinate which windows should be considered, but idk if it works on all cases. If you are having issues trying to record a specific window, try using a more specific text.
+
+- **A window's inputs only get recorded if it is the foreground window (focused)**, that means that even if a window is receiving inputs, they don't get recorded unless it is the foreground window.
 
 The code is kinda messy, so if you are thinking about checking it out for anything goodluck lol <br />
 Credits.txt has some links to posts and people yt videos that helped me to make this program.
