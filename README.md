@@ -50,4 +50,4 @@ The __"settings"__ file has only one value, it represents a __custom controller 
 - **The minimized time only starts getting recorded when all the windows that match the element are minimized**, this can be an issue because there could be more windows on a process that the ones you interact with or see, these windows will always be considered non-minimized, a filter is used to determinate which windows should be considered, but idk if it works on all cases. If you are having issues trying to record a specific window, try using a more specific text.
 
 The code is kinda messy, so if you are thinking of checking it out for anything goodluck lol <br />
-The Credits.txt file has some links to posts and peoples yt videos that helped me to make this program.
+The Credits.txt file has some links to posts and people yt videos that helped me to make this program.
