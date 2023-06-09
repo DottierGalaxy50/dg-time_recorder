@@ -1,5 +1,5 @@
 # dg-time_recorder
-A simple program that records the amount of time that any other application has been running for. It can record specific application's windows by their title and records other things like for how long the app/window has been minimized or like for how long it has been receiving inputs from a specific type of device while having a/being the focused window.
+This is a simple program that records the amount of time that any other application has been running for. It can record specific application's windows by their title and records other things like for how long the app/window has been minimized or like for how long it has been receiving inputs from a specific type of device while having a/being the focused window.
 ## How to use
 This is the first program that i have ever made, that plus the fact that i made it for my personal use in mind may not make it a very feature complete or user-friendly program, but it is pretty straight forward to use as long as you don't mess with the data files, __a content line should not have any extra blank-spaces and the file should always have an extra blank line as the last one with no blank-spaces or the program won't start.__ I feel than that should be expected, but i feel that i have to say it anyways.
 
