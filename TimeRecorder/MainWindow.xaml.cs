@@ -23,7 +23,7 @@ namespace TimeRecorder
             InitTimer();
             AddRunningProcessesOnStartUp();
 
-            FocusInputsIntervals = new System.Threading.Timer(RefreshAllFocusInputs, App.autoEvent, 20, 20);
+            FocusInputsIntervals = new System.Threading.Timer(RefreshAllFocusInputs, App.autoEvent, 15, 15);
             this.SizeToContent = SizeToContent.Width;
         }
 

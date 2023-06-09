@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using static TimeRecorder.App.NativeMethods;
 
@@ -17,6 +19,7 @@ namespace TimeRecorder
         static long lastMouseChange;
         static long lastJoystickChange;
 
+        static uint[] lastJoystickPOVlist = new uint[16];
         public static int CustomJoyDeadZone;
 
         static POINT lastCursorPos = new POINT();
@@ -92,6 +95,26 @@ namespace TimeRecorder
                         //Console.WriteLine("Moving Axis: " + i + " " + Environment.TickCount);
                         lastJoystickChange = App.TimeSinceStart.ElapsedMilliseconds;
                         return true;
+                    }
+
+                    if ((JoystickCapInfo.wCaps & 16) != 0)
+                    {
+                        if ((JoystickCapInfo.wCaps & 64) != 0)
+                        {
+                            if (lastJoystickPOVlist[(int)i] != JoystickInfo.dwPOV)
+                            {
+                                //Console.WriteLine("POV Continuous: " + i + " " + Environment.TickCount);
+                                lastJoystickChange = App.TimeSinceStart.ElapsedMilliseconds;
+                                lastJoystickPOVlist[(int)i] = JoystickInfo.dwPOV;
+                                return true;
+                            }
+                        }
+                        else if (JoystickInfo.dwPOV != 65535)
+                        {
+                            //Console.WriteLine("POV Directional: " + i + " " + Environment.TickCount);
+                            lastJoystickChange = App.TimeSinceStart.ElapsedMilliseconds;
+                            return true;
+                        }
                     }
                 }
             }
