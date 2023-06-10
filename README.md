@@ -42,7 +42,7 @@ Data order:
 
 The hours are actually saved has miliseconds on the file, so if you want to know how much is it or want to add your own values you will have to make the conversion.
 
-The __"settings"__ file has only one value, it represents a __custom controller joystick deadzone threshold__, the value is summed with Windows own deadzone threshold. If the threshold is surpassed it will start recording joystick movement inputs. I used this for a controller emulator that didn't centered correctly. The default value of 50 is actually pretty low, if you will use this program with a controller make sure it only records it when you are actually moving your joysticks, if you care about that. 
+The __"settings"__ file has only one value, it represents a __custom controller joystick deadzone threshold__, the value is summed with Windows own deadzone threshold. If the threshold is surpassed it will start recording joystick movement inputs. I used this for a controller emulator that didn't centered correctly. The default value of 50 is pretty low, if you will use this program with a controller make sure it only records it when you are actually moving your joysticks, if you care about that. 
 
 ## Other issues, details and limitations
 - **The program can't differentiate elements with the same process name but than have different paths**, this is because the program's path is only utilized for the element icon on the UI at the moment. This wasn't the case while making the program, but later i found out that a program without a Microsoft certificate or admin privileges can't get the path of another that has elevated privileges. I could make it so if a process path cannot be obtained it just ignores checking the path and make it only check the process name, that way making anyone who wants to distinguish between elements that have the same process name but different paths able to, that way making this capable of getting the elevated privileges programs paths if this is run with admin privileges as well. I didn't do this because it was more work and i saw it as an inconvenience with low probability of being an issue, and i didn't wanted to force anyone to run this program with admin privileges.
@@ -51,7 +51,7 @@ The __"settings"__ file has only one value, it represents a __custom controller 
 
 - **The minimized time only starts getting recorded when all the windows that match the element are minimized**, this can be an issue because there could be more windows on a process that the ones you interact with or see, these windows will always be considered non-minimized, a filter is used to determinate which windows should be considered, but idk if it works on all cases. If you are having issues trying to record a specific window, try using a more specific text.
 
-- **A window's inputs only get recorded if it is the foreground window (focused)**, that means that even if a window is receiving inputs, they don't get recorded unless it is the foreground window.
+- **A window's inputs only get recorded if it is the foreground window**, that means that even if a window is receiving inputs, they don't get recorded unless it is the foreground window.
 
 The code is kinda messy, so if you are thinking about checking it out for anything goodluck lol <br />
 Credits.txt has some links to posts and people yt videos that helped me to make this program.
