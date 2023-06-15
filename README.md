@@ -30,7 +30,7 @@ Data order:
 5. **Process Name** - Exact process name. (Executable name + .exe).
 6. **Window Text Match** - The text to try matching when Record Window is activated.
 7. **Program's Path** - Program's full path (with executable name + .exe).
-8. **Icon's Path** - Path of the image/file to get the ui icon from (Leave empty to use .exe one).
+8. **Icon's Path** - Path of the image/file to get the UI icon from (Leave empty to use .exe one).
 9. **Total Hours**.
 10. **Minimized Hours**.
 11. **Focused Hours**.
