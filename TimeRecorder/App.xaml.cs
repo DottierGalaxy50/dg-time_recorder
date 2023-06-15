@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows;
-using System.Management;
 using System.Diagnostics;
 using System.Threading;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 using Forms = System.Windows.Forms;
 using static TimeRecorder.App.NativeMethods;
 using static TimeRecorder.SystemInputsRefresh;
@@ -20,30 +21,28 @@ namespace TimeRecorder
     {
         private readonly Forms.NotifyIcon _notifyIcon;
 
-        ManagementEventWatcher processStartEvent = new ManagementEventWatcher(@"\\.\root\CIMV2", "SELECT * FROM __InstanceCreationEvent WITHIN .025 WHERE TargetInstance ISA 'Win32_Process'");
-        ManagementEventWatcher processStopEvent = new ManagementEventWatcher(@"\\.\root\CIMV2", "SELECT * FROM __InstanceDeletionEvent WITHIN .025 WHERE TargetInstance ISA 'Win32_Process'");
+        //ManagementEventWatcher processStartEvent = new ManagementEventWatcher(@"\\.\root\CIMV2", "SELECT * FROM __InstanceCreationEvent WITHIN .025 WHERE TargetInstance ISA 'Win32_Process'");
+        //ManagementEventWatcher processStopEvent = new ManagementEventWatcher(@"\\.\root\CIMV2", "SELECT * FROM __InstanceDeletionEvent WITHIN .025 WHERE TargetInstance ISA 'Win32_Process'");
 
         static List<PHook> PHooks = new List<PHook>();
-        public static Stopwatch TimeSinceStart = new Stopwatch();
 
         public App()
         {
             InitializeAppSettingsFile();
-            TimeSinceStart.Start();
 
             _notifyIcon = new Forms.NotifyIcon();
 
-            processStartEvent.EventArrived += processStartEvent_EventArrived;
-            processStartEvent.Start();
-            processStopEvent.EventArrived += processStopEvent_EventArrived;
-            processStopEvent.Start();
+            //processStartEvent.EventArrived += processStartEvent_EventArrived;
+            //processStartEvent.Start();
+            //processStopEvent.EventArrived += processStopEvent_EventArrived;
+            //processStopEvent.Start();
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            _notifyIcon.Icon = Icon.ExtractAssociatedIcon(Directory.GetCurrentDirectory()+@"\"+Process.GetCurrentProcess().ProcessName+".exe");
+            _notifyIcon.Icon = Icon.ExtractAssociatedIcon(Directory.GetCurrentDirectory() + @"\" + Process.GetCurrentProcess().ProcessName + ".exe");
             _notifyIcon.Text = "Time Recorder";
             _notifyIcon.MouseClick += NotifyIcon_Click;
 
@@ -70,6 +69,37 @@ namespace TimeRecorder
 
             string[] lines = File.ReadAllLines(file);
             CustomJoyDeadZone = int.Parse(lines[0]);
+        }
+
+        static public void CleanUpOnStartUp()
+        {
+            string programPath = Directory.GetCurrentDirectory();
+            DirectoryInfo DataDir = new DirectoryInfo(programPath+@"\data");
+
+            foreach(FileInfo file in DataDir.GetFiles())
+            {
+                if (file.Name.ToLower().Contains(".tmp"))
+                {
+                    Console.WriteLine(file.Name);
+                    File.Delete(file.FullName);
+                }
+            }
+
+            DirectoryInfo IconsDir = new DirectoryInfo(programPath+@"\icons");
+            var plist = Processes.ProcessList;
+
+            foreach(FileInfo file in IconsDir.GetFiles())
+            {
+                for(int i = 0; i < plist.Count; i++)
+                {
+                    if (plist[i].IcoDir != null && plist[i].IcoDir.Contains(file.Name))
+                    {
+                        goto Continue;
+                    }
+                }
+                File.Delete(file.FullName);
+                Continue:;
+            }
         }
 
         private void ShowWindow()
@@ -99,6 +129,13 @@ namespace TimeRecorder
             StringBuilder sb = new StringBuilder(textLength + 1);
             NativeMethods.GetWindowText(hWnd, sb, sb.Capacity);
             return sb.ToString();
+        }
+
+        public static long GetTimeSinceSysStart()
+        {
+            ulong time = 0;
+            QueryUnbiasedInterruptTime(ref time);
+            return (long)(time/10000);
         }
 
         internal static class NativeMethods
@@ -140,6 +177,12 @@ namespace TimeRecorder
 
             [DllImport("user32.dll")]
             internal static extern IntPtr GetLastActivePopup(IntPtr hWnd);
+
+            [DllImport("user32.dll")]
+            internal static extern uint GetClassLong(IntPtr hWnd, int nIndex);
+
+            [DllImport("user32.dll")]
+            internal static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
             internal delegate void WinEventProc(IntPtr hWinEventHook, int iEvent, IntPtr hWnd, int idObject, int idChild, int dwEventThread, int dwmsEventTime);
             [DllImport("user32.dll", SetLastError = true)]
@@ -197,7 +240,7 @@ namespace TimeRecorder
             {
                 public ushort wMid;
                 public ushort wPid;
-                [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32*2)]
+                [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32 * 2)]
                 public char[] szPname;
                 public uint wXmin;
                 public uint wXmax;
@@ -218,11 +261,15 @@ namespace TimeRecorder
                 public uint wMaxAxes;
                 public uint wNumAxes;
                 public uint wMaxButtons;
-                [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32*2)]
+                [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32 * 2)]
                 public char[] szRegKey;
-                [MarshalAs(UnmanagedType.ByValArray, SizeConst = 260*2)]
+                [MarshalAs(UnmanagedType.ByValArray, SizeConst = 260 * 2)]
                 public char[] szOEMVxD;
             }
+
+            [DllImport("Kernel32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            internal static extern bool QueryUnbiasedInterruptTime(ref ulong UnbiasedTime);
         }
 
         IntPtr FocusPEventHook = SetWinEventHook(0x0003, 0x0003, IntPtr.Zero, (hWinEventHook, iEvent, hWnd, idObject, idChild, dwEventThread, dwmsEventTime) =>
@@ -253,13 +300,12 @@ namespace TimeRecorder
             return hwndWalk == hwnd;
         }
 
-        void processStartEvent_EventArrived(object sender, EventArrivedEventArgs e)
-        {
-            var targetInstance = (ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value;
-            int pid = Convert.ToInt32(targetInstance.Properties["ProcessID"].Value);
-
-            AddRunningProcess(pid,IntPtr.Zero);
-        }
+        //void processStartEvent_EventArrived(object sender, EventArrivedEventArgs e)
+        //{
+        //var targetInstance = (ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value;
+        //int pid = Convert.ToInt32(targetInstance.Properties["ProcessID"].Value);
+        //AddRunningProcess(pid,IntPtr.Zero);
+        //}
 
         public static void AddRunningProcess(int pid, IntPtr Wnd)
         {
@@ -272,9 +318,9 @@ namespace TimeRecorder
             ProcessThreadCollection pThreads;
 
             try
-            { 
+            {
                 p = Process.GetProcessById(pid);
-                Name = p.ProcessName+".exe";
+                Name = p.ProcessName + ".exe";
                 WndName = p.MainWindowTitle;
                 pThreads = p.Threads;
             }
@@ -293,7 +339,7 @@ namespace TimeRecorder
             }
             else
             {
-                foreach( ProcessThread thread in pThreads)
+                foreach (ProcessThread thread in pThreads)
                 {
                     EnumThreadWindows((uint)thread.Id, (hWnd, lParam) =>
                     {
@@ -329,7 +375,7 @@ namespace TimeRecorder
             {
                 foreach (PHook hook in PHooks)
                 {
-                    if (hook.Id == pid){ return; }
+                    if (hook.Id == pid) { return; }
                 }
 
                 Application.Current.Dispatcher.Invoke(new Action(() =>
@@ -357,14 +403,14 @@ namespace TimeRecorder
 
                         Process proc;
                         string procName;
-                        try { proc = Process.GetProcessById((int)ProcessId); procName = proc.ProcessName+".exe"; } catch { return; }
+                        try { proc = Process.GetProcessById((int)ProcessId); procName = proc.ProcessName + ".exe"; } catch { return; }
 
                         if (ProcessId != 0 && idObject == 0 && IsAltTabWindow(hWnd))
                         {
                             //Console.WriteLine("***Window Name Changed*** " + GetWindowTitle(hWnd));
-                            RemoveProcessWnd(procName,(int)hWnd);
+                            RemoveProcessWnd(procName, (int)hWnd);
                             AddRunningProcess((int)ProcessId, hWnd);
-                            RefreshAllFocus(procName,(int)hWnd);
+                            RefreshAllFocus(procName, (int)hWnd);
                         }
 
                     }, pid, 0, SetWinEventHookFlags.WINEVENT_OUTOFCONTEXT);
@@ -376,7 +422,7 @@ namespace TimeRecorder
 
                         Process proc;
                         string procName;
-                        try { proc = Process.GetProcessById((int)ProcessId); procName = proc.ProcessName+".exe"; } catch { return; }
+                        try { proc = Process.GetProcessById((int)ProcessId); procName = proc.ProcessName + ".exe"; } catch { return; }
 
                         if (ProcessId != 0 && idObject == 0 && IsAltTabWindow(hWnd))
                         {
@@ -400,12 +446,12 @@ namespace TimeRecorder
 
                         Process proc;
                         string procName;
-                        try { proc = Process.GetProcessById((int)ProcessId); procName = proc.ProcessName+".exe"; } catch { return; }
+                        try { proc = Process.GetProcessById((int)ProcessId); procName = proc.ProcessName + ".exe"; } catch { return; }
 
                         if (ProcessId != 0 && idObject == 0)
                         {
                             //Console.WriteLine("***Window Minimized*** " + hWnd + " " + ProcessId);
-                            CheckProcessMinimized(procName,(int)hWnd,proc,true);
+                            CheckProcessMinimized(procName, (int)hWnd, proc, true);
                         }
 
                     }, pid, 0, SetWinEventHookFlags.WINEVENT_OUTOFCONTEXT);
@@ -417,12 +463,12 @@ namespace TimeRecorder
 
                         Process proc;
                         string procName;
-                        try { proc = Process.GetProcessById((int)ProcessId); procName = proc.ProcessName+".exe"; } catch { return; }
+                        try { proc = Process.GetProcessById((int)ProcessId); procName = proc.ProcessName + ".exe"; } catch { return; }
 
                         if (ProcessId != 0 && idObject == 0)
                         {
                             //Console.WriteLine("***Window Restored*** " + hWnd + " " + ProcessId);
-                            CheckProcessMinimized(procName,(int)hWnd,proc,false);
+                            CheckProcessMinimized(procName, (int)hWnd, proc, false);
                         }
 
                     }, pid, 0, SetWinEventHookFlags.WINEVENT_OUTOFCONTEXT);
@@ -498,7 +544,7 @@ namespace TimeRecorder
                                             //Console.WriteLine("***Adding Window*** " + PhWndsList[i2]);
                                             rlist[i3].hWnds.Add((int)PhWndsList[i2]);
                                             AddWndToHook(i2);
-                                            CheckProcessMinimized(Name,(int)PhWndsList[i2],p,IsIconic(PhWndsList[i2]));
+                                            CheckProcessMinimized(Name, (int)PhWndsList[i2], p, IsIconic(PhWndsList[i2]));
 
                                             if (!rlist[i3].IsFocus && (GetForegroundWindow() == PhWndsList[i2]))
                                             {
@@ -508,19 +554,19 @@ namespace TimeRecorder
                                         goto Continue1;
                                     }
                                 }
-                                
+
                                 Wnd = PhWndsList[i2];
                                 AddWndToHook(i2);
                                 //Console.WriteLine("***Creating Adding Window*** " + PhWndsList[i2]);
-                                CreateRunningProcess(i,true);
-                                CheckProcessMinimized(Name,(int)Wnd,p,IsIconic(Wnd));
+                                CreateRunningProcess(i, true);
+                                CheckProcessMinimized(Name, (int)Wnd, p, IsIconic(Wnd));
 
                                 if (!rlist.Last().IsFocus && (GetForegroundWindow() == Wnd))
                                 {
-                                    SetFocusOnProcess(i, rlist.Count-1);
+                                    SetFocusOnProcess(i, rlist.Count - 1);
                                 }
                             }
-                            Continue1:;
+                        Continue1:;
                         }
                     }
                     else
@@ -533,7 +579,7 @@ namespace TimeRecorder
                                 if (!rlist[i2].IDs.Contains(pid))
                                 {
                                     rlist[i2].IDs.Add(pid);
-                                    CheckProcessMinimized(Name,(int)Wnd,p,IsIconic(Wnd));
+                                    CheckProcessMinimized(Name, (int)Wnd, p, IsIconic(Wnd));
 
                                     if (!rlist[i2].IsFocus)
                                     {
@@ -549,8 +595,8 @@ namespace TimeRecorder
                                 goto Continue2;
                             }
                         }
-                        CreateRunningProcess(i,false);
-                        CheckProcessMinimized(Name,(int)Wnd,p,IsIconic(Wnd));
+                        CreateRunningProcess(i, false);
+                        CheckProcessMinimized(Name, (int)Wnd, p, IsIconic(Wnd));
 
                         if (!rlist.Last().IsFocus)
                         {
@@ -558,12 +604,12 @@ namespace TimeRecorder
                             {
                                 if (GetForegroundWindow() == hWnd)
                                 {
-                                    SetFocusOnProcess(i, rlist.Count-1);
+                                    SetFocusOnProcess(i, rlist.Count - 1);
                                 }
                             }
                         }
                     }
-                    Continue2:;
+                Continue2:;
                 }
             }
 
@@ -572,25 +618,27 @@ namespace TimeRecorder
                 //Console.WriteLine("***Creating RunningProcess***");
                 if (IsWnd)
                 {
-                    rlist.Add( new RunningProcess()
+                    rlist.Add(new RunningProcess()
                     {
+                        Index = i,
                         hWnds = new List<int> { (int)Wnd },
                         PName = Name,
                         WndName = plist[i].WndName,
                         AddHours = plist[i].Hours,
-                        TimeTick = TimeSinceStart.ElapsedMilliseconds,
+                        TimeTick = GetTimeSinceSysStart(),
                         InputWaitT = plist[i].InputWaitT,
                         InputSaveT = plist[i].InputSaveT
                     });
                 }
                 else
                 {
-                    rlist.Add( new RunningProcess()
+                    rlist.Add(new RunningProcess()
                     {
+                        Index = i,
                         IDs = new List<int> { pid },
                         PName = Name,
                         AddHours = plist[i].Hours,
-                        TimeTick = TimeSinceStart.ElapsedMilliseconds,
+                        TimeTick = GetTimeSinceSysStart(),
                         InputWaitT = plist[i].InputWaitT,
                         InputSaveT = plist[i].InputSaveT
                     });
@@ -616,7 +664,7 @@ namespace TimeRecorder
 
             rlist[i2].IsFocus = true;
             rlist[i2].AddFocusH = plist[i].FocusH;
-            rlist[i2].FocusTick = TimeSinceStart.ElapsedMilliseconds;
+            rlist[i2].FocusTick = GetTimeSinceSysStart();
             //Console.WriteLine("***Added Focus*** " + i + " " + i2);
         }
 
@@ -674,8 +722,8 @@ namespace TimeRecorder
                         if (rlist[i].PName.Equals(plist[i2].PName) && rlist[i].WndName == wndname)
                         {
                             rlist[i].IsFocus = false;
-                            long elapsedTicks = TimeSinceStart.ElapsedMilliseconds-rlist[i].FocusTick;
-                            long newFocusH = rlist[i].AddFocusH+elapsedTicks;
+                            long elapsedTicks = GetTimeSinceSysStart() - rlist[i].FocusTick;
+                            long newFocusH = rlist[i].AddFocusH + elapsedTicks;
                             plist[i2].FocusH = newFocusH;
                             plist[i2].ViewFocusH = (float)newFocusH / 3600000;
                             //Console.WriteLine("***Removed Focus Name*** " + rlist[i].WndName + " " + wndname);
@@ -706,7 +754,7 @@ namespace TimeRecorder
 
                                 for (int i3 = 0; i3 < rlist[i].hWnds.Count; i3++)
                                 {
-                                    if (i3 == i2 && !IsWndMin) 
+                                    if (i3 == i2 && !IsWndMin)
                                     {
                                         AllMin = false;
                                         //Console.WriteLine("***Process Not Minimized*** " + i);
@@ -729,7 +777,7 @@ namespace TimeRecorder
                     {
                         ProcessThreadCollection pThreads;
 
-                        try{ pThreads = p.Threads; } //idk if the process can stop while this is running. Simple fail check.
+                        try { pThreads = p.Threads; } //idk if the process can stop while this is running. Simple fail check.
                         catch { continue; }
 
                         bool AllMin = true;
@@ -759,9 +807,9 @@ namespace TimeRecorder
                 if (AllMin)
                 {
                     if (!rlist[i].IsMin)
-                    {                   
+                    {
                         rlist[i].IsMin = true;
-                        rlist[i].MinTick = TimeSinceStart.ElapsedMilliseconds;
+                        rlist[i].MinTick = GetTimeSinceSysStart();
 
                         for (int i2 = 0; i2 < plist.Count; i2++)
                         {
@@ -786,10 +834,10 @@ namespace TimeRecorder
                             string wndname = plist[i2].WndName; if (!plist[i2].RecordWnd) { wndname = null; } // just want to be done with this
                             if (rlist[i].PName.Equals(plist[i2].PName) && rlist[i].WndName == wndname)
                             {
-                                long elapsedTicks = TimeSinceStart.ElapsedMilliseconds-rlist[i].MinTick;
-                                long newMinH = rlist[i].AddMinH+elapsedTicks;
+                                long elapsedTicks = GetTimeSinceSysStart() - rlist[i].MinTick;
+                                long newMinH = rlist[i].AddMinH + elapsedTicks;
                                 plist[i2].MinH = newMinH;
-                                plist[i2].ViewMinH = (float)newMinH/3600000;
+                                plist[i2].ViewMinH = (float)newMinH / 3600000;
                                 //Console.WriteLine("***Removed Min*** " + i2 + " " + i);
                             }
                         }
@@ -838,14 +886,14 @@ namespace TimeRecorder
             }
         }
 
-        void processStopEvent_EventArrived(object sender, EventArrivedEventArgs e)
+        public static void processStopEvent_EventArrived(int pid, string Name)
         {
             var rlist = RunningProcesses.RunningProcessesList;
-            var targetInstance = (ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value;
-            int pid = Convert.ToInt32(targetInstance.Properties["ProcessID"].Value);
-            string Name = (string)targetInstance.Properties["Name"].Value;
+            //var targetInstance = (ManagementBaseObject)e.NewEvent.Properties["TargetInstance"].Value;
+            //int pid = Convert.ToInt32(targetInstance.Properties["ProcessID"].Value);
+            //string Name = (string)targetInstance.Properties["Name"].Value;
 
-            for (int i = rlist.Count-1; i > -1; i--)
+            for (int i = rlist.Count - 1; i > -1; i--)
             {
                 if (rlist[i].PName.Equals(Name))
                 {
@@ -859,7 +907,7 @@ namespace TimeRecorder
 
                             //if (SaveTime > rlist[i].InputSaveT)
                             //{
-                                //SaveTime = rlist[i].InputSaveT;
+                            //SaveTime = rlist[i].InputSaveT;
                             //}
                             //CheckRemoveInputOnProcess(i, 0, SaveTime); //We stop waiting for InputWait, we just save.
 
@@ -888,7 +936,7 @@ namespace TimeRecorder
 
                                                 //if (SaveTime > rlist[i].InputSaveT)
                                                 //{
-                                                    //SaveTime = rlist[i].InputSaveT;
+                                                //SaveTime = rlist[i].InputSaveT;
                                                 //}
                                                 //CheckRemoveInputOnProcess(i, 0, SaveTime); //We stop waiting for InputWait, we just save.
 
@@ -913,7 +961,7 @@ namespace TimeRecorder
                 }
             }
 
-            for (int i2 = PHooks.Count-1; i2 > -1; i2--)
+            for (int i2 = PHooks.Count - 1; i2 > -1; i2--)
             {
                 PHook hook = PHooks[i2];
 
@@ -946,9 +994,9 @@ namespace TimeRecorder
 
         static private void rtimer_Tick(object stateInfo)
         {
-            string[] fileLines = new string[]{};
+            string[] fileLines = new string[] { };
 
-            long currentDateTick = TimeSinceStart.ElapsedMilliseconds;
+            long currentTick = GetTimeSinceSysStart();
             string currentDate = DateTime.Now.ToString();
 
             for (int i = 0; i <= NumOfRetries; ++i) // try catch statements had to be used on this function because of erros while opening or exiting games.
@@ -974,7 +1022,7 @@ namespace TimeRecorder
             {
                 foreach (var line in fileLines)
                 {
-                    //string dir = line.Split(',').ElementAt(3);
+                    //string dir = line.Split(',').ElementAt(6);
                     string PName = line.Split(',').ElementAt(4);
 
                     if (PName.Equals(rlist[i].PName))
@@ -999,21 +1047,21 @@ namespace TimeRecorder
 
                         int pid = Array.FindIndex(fileLines, m => m == line);
 
-                        string realhours = line.Split(',').ElementAt(7);
-                        string realminh = line.Split(',').ElementAt(8);
-                        string realfocush = line.Split(',').ElementAt(9);
-                        
-                        string realinputh = line.Split(',').ElementAt(10);
-                        string realinputkeyh = line.Split(',').ElementAt(11);
-                        string realinputmouseh = line.Split(',').ElementAt(12);
-                        string realinputkmh = line.Split(',').ElementAt(13);
-                        string realinputjoyh = line.Split(',').ElementAt(14);
+                        string realhours = line.Split(',').ElementAt(8);
+                        string realminh = line.Split(',').ElementAt(9);
+                        string realfocush = line.Split(',').ElementAt(10);
 
-                        string realfirst = line.Split(',').ElementAt(17);
-                        string reallast = line.Split(',').ElementAt(18);
+                        string realinputh = line.Split(',').ElementAt(11);
+                        string realinputkeyh = line.Split(',').ElementAt(12);
+                        string realinputmouseh = line.Split(',').ElementAt(13);
+                        string realinputkmh = line.Split(',').ElementAt(14);
+                        string realinputjoyh = line.Split(',').ElementAt(15);
 
-                        long elapsedTicks = currentDateTick-rlist[i].TimeTick;
-                        long newHours = rlist[i].AddHours+elapsedTicks;
+                        string realfirst = line.Split(',').ElementAt(18);
+                        string reallast = line.Split(',').ElementAt(19);
+
+                        long elapsedTicks = currentTick - rlist[i].TimeTick;
+                        long newHours = rlist[i].AddHours + elapsedTicks;
 
                         long newMinH = Processes.ProcessList[pid].MinH;
                         long newFocusH = Processes.ProcessList[pid].FocusH;
@@ -1025,62 +1073,123 @@ namespace TimeRecorder
 
                         if (rlist[i].IsMin)
                         {
-                            elapsedTicks = currentDateTick-rlist[i].MinTick;
-                            newMinH = rlist[i].AddMinH+elapsedTicks;
+                            elapsedTicks = currentTick - rlist[i].MinTick;
+                            newMinH = rlist[i].AddMinH + elapsedTicks;
                             Processes.ProcessList[pid].MinH = newMinH;
-                            Processes.ProcessList[pid].ViewMinH = (float)newMinH/3600000;
+                            Processes.ProcessList[pid].ViewMinH = (float)newMinH / 3600000;
                         }
                         if (rlist[i].IsFocus)
                         {
-                            elapsedTicks = currentDateTick-rlist[i].FocusTick;
-                            newFocusH = rlist[i].AddFocusH+elapsedTicks;
+                            elapsedTicks = currentTick - rlist[i].FocusTick;
+                            newFocusH = rlist[i].AddFocusH + elapsedTicks;
                             Processes.ProcessList[pid].FocusH = newFocusH;
-                            Processes.ProcessList[pid].ViewFocusH = (float)newFocusH/3600000;
+                            Processes.ProcessList[pid].ViewFocusH = (float)newFocusH / 3600000;
                         }
                         if (rlist[i].IsInputKey)
                         {
-                            elapsedTicks = currentDateTick-rlist[i].InputKeyTick;
+                            elapsedTicks = currentTick - rlist[i].InputKeyTick;
                             newInputKeyH = rlist[i].AddInputKeyH + elapsedTicks;
                             Processes.ProcessList[pid].InputKeyH = newInputKeyH;
-                            Processes.ProcessList[pid].ViewInputKeyH = (float)newInputKeyH/3600000;
+                            Processes.ProcessList[pid].ViewInputKeyH = (float)newInputKeyH / 3600000;
                         }
                         if (rlist[i].IsInputMouse)
                         {
-                            elapsedTicks = currentDateTick-rlist[i].InputMouseTick;
+                            elapsedTicks = currentTick - rlist[i].InputMouseTick;
                             newInputMouseH = rlist[i].AddInputMouseH + elapsedTicks;
                             Processes.ProcessList[pid].InputMouseH = newInputMouseH;
-                            Processes.ProcessList[pid].ViewInputMouseH = (float)newInputMouseH/3600000;
+                            Processes.ProcessList[pid].ViewInputMouseH = (float)newInputMouseH / 3600000;
                         }
                         if (rlist[i].IsInputJoy)
                         {
-                            elapsedTicks = currentDateTick-rlist[i].InputJoyTick;
+                            elapsedTicks = currentTick - rlist[i].InputJoyTick;
                             newInputJoyH = rlist[i].AddInputJoyH + elapsedTicks;
                             Processes.ProcessList[pid].InputJoyH = newInputJoyH;
-                            Processes.ProcessList[pid].ViewInputJoyH = (float)newInputJoyH/3600000;
+                            Processes.ProcessList[pid].ViewInputJoyH = (float)newInputJoyH / 3600000;
                         }
                         if (rlist[i].IsInputKey || rlist[i].IsInputMouse)
                         {
-                            elapsedTicks = currentDateTick-rlist[i].InputKMTick;
+                            elapsedTicks = currentTick - rlist[i].InputKMTick;
                             newInputKMH = rlist[i].AddInputKMH + elapsedTicks;
                             Processes.ProcessList[pid].InputKMH = newInputKMH;
-                            Processes.ProcessList[pid].ViewInputKMH = (float)newInputKMH/3600000;
+                            Processes.ProcessList[pid].ViewInputKMH = (float)newInputKMH / 3600000;
                         }
                         if (rlist[i].IsInputKey || rlist[i].IsInputMouse || rlist[i].IsInputJoy)
                         {
-                            elapsedTicks = currentDateTick-rlist[i].InputTick;
+                            elapsedTicks = currentTick - rlist[i].InputTick;
                             newInputH = rlist[i].AddInputH + elapsedTicks;
                             Processes.ProcessList[pid].InputH = newInputH;
-                            Processes.ProcessList[pid].ViewInputH = (float)newInputH/3600000;
+                            Processes.ProcessList[pid].ViewInputH = (float)newInputH / 3600000;
                         }
 
                         string newLine = line.Replace($",{realhours},{realminh},{realfocush},{realinputh},{realinputkeyh},{realinputmouseh},{realinputkmh},{realinputjoyh},", $",{newHours},{newMinH},{newFocusH},{newInputH},{newInputKeyH},{newInputMouseH},{newInputKMH},{newInputJoyH},");
                         newLine = newLine.Replace($"{realfirst},{reallast}", $"{Processes.ProcessList[pid].First},{currentDate}");
 
-                        fileLines[pid] = newLine;
                         Processes.ProcessList[pid].Hours = newHours;
-                        Processes.ProcessList[pid].ViewHours = (float)newHours/3600000;
+                        Processes.ProcessList[pid].ViewHours = (float)newHours / 3600000;
                         Processes.ProcessList[pid].Last = currentDate;
 
+                        if (line.Split(',').ElementAt(7) == "waitWnd")
+                        {
+                            IntPtr hWnd = IntPtr.Zero;
+                            string pngName;
+
+                            if (RecordWnd == "0")
+                            {
+                                try
+                                {
+                                    Process p = Process.GetProcessById(rlist[i].IDs[0]);
+                                    pngName = p.ProcessName;
+                                    hWnd = p.MainWindowHandle;
+                                }
+                                catch { break; }
+                            }
+                            else
+                            {
+                                pngName = rlist[i].WndName;
+                                hWnd = (IntPtr)rlist[i].hWnds[0];
+                            }
+
+                            IntPtr hIcon;
+                            uint WM_GETICON = 0x007f;
+                            IntPtr ICON_SMALL2 = new IntPtr(2);
+
+                            hIcon = SendMessage(hWnd, WM_GETICON, ICON_SMALL2, IntPtr.Zero);
+
+                            if (hIcon == IntPtr.Zero)
+                            {
+                                hIcon = (IntPtr)GetClassLong(hWnd, -14);
+                            }
+
+                            BitmapSource bitmapSource = Imaging.CreateBitmapSourceFromHIcon(
+                                hIcon,
+                                Int32Rect.Empty,
+                                BitmapSizeOptions.FromEmptyOptions());
+
+                            bitmapSource.Freeze();
+
+                            pngName = pngName.Trim().Replace(" ", "_").ToLower() + "_" + new Random(Environment.TickCount).Next(10000000, 99999999) + "\"";
+                            pngName = Regex.Replace(pngName, @"\/|/|:|\*|\?|\""|<|>|\|", "");
+
+                            string pngPath = programPath + @"\icons\" + pngName + ".png";
+
+                            Directory.CreateDirectory(programPath + @"\icons\");
+                            using (var fileStream = new FileStream(pngPath, FileMode.Create))
+                            {
+                                BitmapEncoder encoder = new PngBitmapEncoder();
+                                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                                encoder.Save(fileStream);
+                            }
+
+                            if (TimeRecorder.MainWindow.IsOpen)
+                            {
+                                Processes.ProcessList[pid].Ico = bitmapSource;
+                            }
+                            Processes.ProcessList[pid].IcoDir = @".\icons\" + pngName + ".png";
+
+                            newLine = newLine.Replace($",waitWnd,", $",{@".\icons\" + pngName + ".png"},");
+                        }
+
+                        fileLines[pid] = newLine;
                         break;
                     }
                 }
@@ -1129,6 +1238,7 @@ namespace TimeRecorder
 
     public class RunningProcess
     {
+        public int Index { get; set; }
         public List<int> IDs { get; set; }
         public List<int> hWnds { get; set; }
         public string Dir { get; set; }

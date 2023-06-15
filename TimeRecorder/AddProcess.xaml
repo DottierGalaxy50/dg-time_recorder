@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TimeRecorder"
         mc:Ignorable="d"
-        Title="Add Program" Height="350" Width="540">
+        Title="Add Program" Height="410" Width="540">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -22,12 +22,12 @@
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="NameTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="100" MaxLength="50" MaxLines="1" Margin="50,5,0,0"/>
 
         <Label Grid.Row="1" Grid.Column="1" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Program's Path (.exe):" Margin="0,34,0,0"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="DirTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" Width="300" MaxLength="1000" MaxLines="1" Margin="143,39,0,0"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="DirTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" Width="290" MaxLength="1000" MaxLines="1" Margin="143,39,0,0"/>
         <Button Grid.Row="1" Grid.Column="1" x:Name="AddFind"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Click="AddFind_Click"
-                Content="Find" Margin="447.5,38,0,0"/>
+                Content="Browser" Margin="438,38,0,0"/>
 
         <Label Grid.Row="1" Grid.Column="1" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Starting Hours:" Margin="0,68,0,0"/>
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="HoursTextBox" TextWrapping="Wrap" Text="0.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="102,73,0,0" PreviewTextInput="NumbericTextInput"/>
@@ -38,13 +38,23 @@
         <CheckBox Grid.Row="1" Grid.Column="1" x:Name="MatchModeCheckBox" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Match Exactly" IsChecked="false" Margin="368,114,0,0" />
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="WndNameTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="100" MaxLength="50" MaxLines="1" Margin="191,113,0,0" Width="170"/>
 
-        <Label Grid.Row="1" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Seconds to keep recording for after an input:" Margin="19,148,0,0" Grid.ColumnSpan="2"/>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="InputWaitTextBox" TextWrapping="Wrap" Text="1.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="286,153,0,0" PreviewTextInput="NumbericTextInput" LostFocus="InputWaitTextChange" KeyUp="WaitTextBox_KeyUp"/>
+        <Label Grid.Row="1" Grid.Column="1" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Use specific icon on list:" Margin="0,144,0,0"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="IcoDirTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" Width="277" MaxLength="1000" MaxLines="1" Margin="156,150,0,0"/>
+        <Button Grid.Row="1" Grid.Column="1" x:Name="IcoAddFind"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Click="IcoAddFind_Click"
+                Content="Browser" Margin="438,149,0,0"/>
 
-        <Label Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="19,182,0,0" Grid.ColumnSpan="2">
+        <CheckBox Grid.Row="1" Grid.Column="1" x:Name="UseWndIconCheckBox" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Use the first recorded window's icon on the list instead." Margin="5,179,0,0"/>
+
+        <Label Grid.Row="1" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Seconds to keep recording for after an input:" Margin="0,211,0,0" Grid.Column="1"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="InputWaitTextBox" TextWrapping="Wrap" Text="1.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="287,216,0,0" PreviewTextInput="NumbericTextInput" LostFocus="InputWaitTextChange" KeyUp="WaitTextBox_KeyUp"/>
+
+        <Label Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,245,0,0" Grid.Column="1">
             <TextBlock FontSize="14" Text="Amount of seconds to save if there were no new inputs while recording for&#x0a;the specified amount above:" />
         </Label>
-        <TextBox Grid.Row="1" Grid.Column="1" x:Name="InputSaveTextBox" TextWrapping="Wrap" Text="0.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="185,209,0,0" PreviewTextInput="NumbericTextInput" LostFocus="InputSaveTextChange" KeyUp="SaveTextBox_KeyUp"/>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="InputSaveTextBox" TextWrapping="Wrap" Text="0.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="185,271,0,0" PreviewTextInput="NumbericTextInput" LostFocus="InputSaveTextChange" KeyUp="SaveTextBox_KeyUp"/>
 
         <Button Grid.Row="1" Grid.Column="1" x:Name="AddButton"
                 Width="100"

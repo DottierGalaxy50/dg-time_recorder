@@ -23,7 +23,7 @@
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
 
-        <DataGrid x:Name="ProcessViewList" x:FieldModifier="public" Grid.Row="2" Grid.Column="1" FontSize="14" ItemsSource="{Binding ProcessList, UpdateSourceTrigger=PropertyChanged}"
+        <DataGrid x:Name="ProcessViewList" x:FieldModifier="public" Grid.Row="2" Grid.Column="1" FontSize="14" ItemsSource="{Binding ProcessList}"
             AutoGenerateColumns="False" CanUserAddRows="False" RowHeaderWidth="0">
 
             <DataGrid.CellStyle>
@@ -36,46 +36,64 @@
 
             <DataGrid.Columns>
 
-                <DataGridTemplateColumn Header=" " Width="25" 
-                    IsReadOnly="True">
-
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Image Height="20" Width="20" Source="{Binding Ico}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
+                <DataGridTemplateColumn> <!--Whe manage the icon's column from c#/>-->
                 </DataGridTemplateColumn>
 
                 <!--<DataGridCheckBoxColumn Header="Record"
-                                    Binding="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>-->
+                                    Binding="{Binding Enabled}"/>-->
                 <DataGridTextColumn Header="Program Name" FontSize="15"
-                                    Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+                                    Binding="{Binding Name}"/>
                 <DataGridTextColumn Header="Process Name" FontSize="15" Width="120"
-                                    Binding="{Binding PName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    Binding="{Binding PName}"/>
                 <DataGridTextColumn Header="Window Title" FontSize="15" Width="120"
-                                    Binding="{Binding WndName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    Binding="{Binding WndName}"/>
                 <!--<DataGridTextColumn Header="Directory"
-                                    Binding="{Binding Dir, UpdateSourceTrigger=PropertyChanged}"/>-->
+                                    Binding="{Binding Dir}"/>-->
                 <DataGridTextColumn Header="Total Hours" FontSize="15"
-                                    Binding="{Binding ViewHours, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                                    Binding="{Binding ViewHours, StringFormat=0.00}"/>
                 <DataGridTextColumn Header="Minimized" FontSize="15"
-                                    Binding="{Binding ViewMinH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                                    Binding="{Binding ViewMinH, StringFormat=0.00}"/>
                 <DataGridTextColumn Header="Focused" FontSize="15"
-                                    Binding="{Binding ViewFocusH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
+                                    Binding="{Binding ViewFocusH, StringFormat=0.00}"/>
                 <DataGridTextColumn Header="+Inputs:" FontSize="15"
-                                    Binding="{Binding ViewInputH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
-                <DataGridTextColumn Header="K" FontSize="15"
-                                    Binding="{Binding ViewInputKeyH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
-                <DataGridTextColumn Header="M" FontSize="15"
-                                    Binding="{Binding ViewInputMouseH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
-                <DataGridTextColumn Header="K+M" FontSize="15"
-                                    Binding="{Binding ViewInputKMH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
-                <DataGridTextColumn Header="C" FontSize="15"
-                                    Binding="{Binding ViewInputJoyH, UpdateSourceTrigger=PropertyChanged, StringFormat=0.00}"/>
-                <DataGridTextColumn Header="First Recorded Date" FontSize="15"
-                                    Binding="{Binding First, UpdateSourceTrigger=PropertyChanged}"/>
+                                    Binding="{Binding ViewInputH, StringFormat=0.00}"/>
+                
+                <DataGridTextColumn Header="K" FontSize="15" Binding="{Binding ViewInputKeyH, StringFormat=0.00}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                
+                <DataGridTextColumn Header="M" FontSize="15" Binding="{Binding ViewInputMouseH, StringFormat=0.00}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                
+                <DataGridTextColumn Header="K+M" FontSize="15" Binding="{Binding ViewInputKMH, StringFormat=0.00}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+            
+                <DataGridTextColumn Header="C" FontSize="15" Binding="{Binding ViewInputJoyH, StringFormat=0.00}">
+                    <DataGridTextColumn.HeaderStyle>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.HeaderStyle>
+                </DataGridTextColumn>
+                
+                <DataGridTextColumn Header="First Recorded Date" FontSize="15" 
+                                    Binding="{Binding First}"/>
                 <DataGridTextColumn Header="Last Recorded Date" FontSize="15"
-                                    Binding="{Binding Last, UpdateSourceTrigger=PropertyChanged}"/>
+                                    Binding="{Binding Last}"/>
             </DataGrid.Columns>
         </DataGrid>
 

@@ -1,19 +1,19 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
+//using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Management;
+//using System.Management;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
-using System.Diagnostics;
+//using System.Diagnostics;
 
 namespace TimeRecorder
 {
     public partial class AddProcess : Window
     {
         public static bool IsOpen = false;
-        public static AddProcess AddProcessWnd;
+        public static AddProcess WndObject;
 
         public AddProcess()
         {
@@ -24,7 +24,7 @@ namespace TimeRecorder
         {
             base.OnClosed(e);
             IsOpen = false;
-            AddProcessWnd = null;
+            WndObject = null;
         }
 
         private void AddFind_Click(object sender, RoutedEventArgs e)
@@ -33,11 +33,27 @@ namespace TimeRecorder
             fileDialog.Multiselect = false;
             fileDialog.Filter = "Exe Files|*.exe";
             fileDialog.DefaultExt = "*.exe";
+            fileDialog.Title = "Select";
             bool? dialogOK = fileDialog.ShowDialog();
 
             if (dialogOK == true)
             {
                 DirTextBox.Text = fileDialog.FileName;
+            }
+        }
+
+        private void IcoAddFind_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Multiselect = false;
+            fileDialog.Filter = "All Files|*|Common Image Files|*.png;*.ico;*.jpg;*.jpeg;*.jpe;*.jfif;*.bmp";
+            fileDialog.DefaultExt = "*";
+            fileDialog.Title = "Select";
+            bool? dialogOK = fileDialog.ShowDialog();
+
+            if (dialogOK == true)
+            {
+                IcoDirTextBox.Text = fileDialog.FileName;
             }
         }
 
@@ -101,6 +117,8 @@ namespace TimeRecorder
             float hours;
             float inputwait;
             float inputsave;
+            string diricon = null;
+            string programPath = Directory.GetCurrentDirectory();
 
             if (string.IsNullOrEmpty(NameTextBox.Text))
             {
@@ -166,6 +184,20 @@ namespace TimeRecorder
                 inputsave = inputwait;
             }
 
+            if ((bool)UseWndIconCheckBox.IsChecked)
+            {
+                diricon = "waitWnd";
+            }
+            else
+            {
+                diricon = IcoDirTextBox.Text;
+
+                if (diricon.Contains(programPath))
+                {
+                    diricon = "."+diricon.Substring(programPath.Length);
+                }
+            }
+
             long realhours = (long)(hours*3600000);
             long realinputwait = (long)Math.Round(inputwait*1000);
             long realinputsave = (long)Math.Round(inputsave*1000);
@@ -173,6 +205,13 @@ namespace TimeRecorder
 
             bool recordwnd = (bool)UseWndCheckBox.IsChecked;
             TRProcess process;
+
+            System.Windows.Media.ImageSource ico = null;
+
+            if (MainWindow.IsOpen)
+            {
+                ico = TRIconConverter.ToImageSource(diricon, dir);
+            }
 
             if (recordwnd)
             {
@@ -185,6 +224,7 @@ namespace TimeRecorder
                     PName = pname + ".exe",
                     WndName = WndNameTextBox.Text.Trim(),
                     Dir = dir,
+                    IcoDir = diricon,
                     Hours = realhours,
                     ViewHours = hours,
                     MinH = 0,
@@ -205,7 +245,7 @@ namespace TimeRecorder
                     InputSaveT = realinputsave,
                     First = datetime,
                     Last = datetime,
-                    Ico = TRIconConverter.ToImageSource(dir),
+                    Ico = ico
                 };
             }
             else
@@ -218,6 +258,7 @@ namespace TimeRecorder
                     PName = pname+".exe",
                     WndName = "--",
                     Dir = dir,
+                    IcoDir = diricon,
                     Hours = realhours,
                     ViewHours = hours,
                     MinH = 0,
@@ -238,12 +279,11 @@ namespace TimeRecorder
                     InputSaveT = realinputsave,
                     First = datetime,
                     Last = datetime,
-                    Ico = TRIconConverter.ToImageSource(dir),
+                    Ico = ico
                 };
             }
             list.Add(process);
 
-            string programPath = Directory.GetCurrentDirectory();
             string dataFolder = @"\data";
             string listFile = @"\processlist.csv";
 
@@ -257,6 +297,7 @@ namespace TimeRecorder
                 $"{process.PName}," +
                 $"{process.WndName}," +
                 $"{dir}," +
+                $"{diricon}," +
                 $"{process.Hours}," +
                 $"{process.MinH}," +
                 $"{process.FocusH}," +
@@ -271,23 +312,23 @@ namespace TimeRecorder
                 $"{datetime}" +
             $"\n");
 
-            using (var searcher = new ManagementObjectSearcher("SELECT ProcessId FROM Win32_Process"))
-            using (var results = searcher.Get())
-            {
-                var query = from p in Process.GetProcessesByName(pname)
-                            join mo in results.Cast<ManagementObject>()
-                            on p.Id equals (int)(uint)mo["ProcessId"]
-                            select new
-                            {
-                                //Process = p,
-                                Id = (int)(uint)mo["ProcessId"],
-                            };
+            //using (var searcher = new ManagementObjectSearcher("SELECT ProcessId FROM Win32_Process"))
+            //using (var results = searcher.Get())
+            //{
+                //var query = from p in Process.GetProcessesByName(pname)
+                            //join mo in results.Cast<ManagementObject>()
+                            //on p.Id equals (int)(uint)mo["ProcessId"]
+                            //select new
+                            //{
+                                ////Process = p,
+                                //Id = (int)(uint)mo["ProcessId"],
+                            //};
 
-                foreach (var p in query)
-                {
-                    App.AddRunningProcess(p.Id, IntPtr.Zero);
-                }
-            }
+                //foreach (var p in query)
+                //{
+                    //App.AddRunningProcess(p.Id, IntPtr.Zero);
+                //}
+            //}
 
             Close();
         }
