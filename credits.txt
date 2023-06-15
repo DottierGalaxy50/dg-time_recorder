@@ -1,0 +1,93 @@
+DottierGalaxy50 - Program in general.
+
+I don't have much experience coding, because of that i wouldn't have been able to finish this program if it wasn't because of the help of many people yt
+tutorials and posts with problem solutions and code that i was able to use and learn from.
+
+ --------------------------------------------------------
+
+Some people yt channels that teached me how to do certain things and introduced me to wpf where:
+
+Computer Science: https://www.youtube.com/channel/UCbmb5IoBtHZTpYZCDBOC1CA (Introduction on the creation of an app for windows)
+World of Zero: https://www.youtube.com/channel/UCJKLCjeujQj-d3JjsbVtkJw (Introduction on the creation of a task list for wpf)
+tips'n tricks: https://www.youtube.com/channel/UCtkgMa4i4HBE_vZW7EwYYXQ (Introduction to wpf xmal datagrid and code for the datagrid)
+CodeDocu Developer C# Asp Net Angular: https://www.youtube.com/channel/UC2HmFo5sOOdITNFCjGzknOQ (WPF FileDialog OpenFileDialog Example)
+Coding Under Pressure: https://www.youtube.com/channel/UCdGYTnk-Ll4S6yOsYwU8D2w (Open A New Pop up Window)
+SingletonSean: https://www.youtube.com/channel/UC7X9mQ_XtTYWzr9Tf_NYcIg (How to add and app to Taskbar "Hidden icons" (System Tray Icons))
+TeckDoctor: https://www.youtube.com/channel/UC3aucMMtXLXn7ODdY0Oe3PA (How to add and app to Taskbar "Hidden icons" again)
+Shaun Halverson: https://www.youtube.com/channel/UCDiSrTPJ4xaw8BP3nQj7c4Q (How to add a new icon for the app)
+Hacked: https://www.youtube.com/channel/UCrNcmuy-uMaVBzLDesfzXDg (Generate exe file (publish))
+
+ --------------------------------------------------------
+
+Some of the posts where i was able to find solutions for some of the problems that i stumbled into where:
+
+WPF DataGrid is adding extra "ghost" row: https://stackoverflow.com/questions/13624289/wpf-datagrid-is-adding-extra-ghost-row
+Refresh DataGrid: https://stackoverflow.com/questions/11324688/how-to-refresh-datagrid-in-wpf
+Update DataGrid in WPF from another window: https://stackoverflow.com/questions/14195901/update-datagrid-in-wpf-from-another-window
+Allow only numeric input in a Textbox: https://abundantcode.com/how-to-allow-only-numeric-input-in-a-textbox-in-wpf/
+Float to String format specifier: https://stackoverflow.com/questions/4866542/float-to-string-format-specifier
+Get file name from path: https://stackoverflow.com/questions/40983995/get-file-name-from-path
+Closing all Windows: https://stackoverflow.com/questions/37063887/closing-all-windows-in-a-c-sharp-wpf-application
+How to detect a process start & end: https://stackoverflow.com/questions/8455873/how-to-detect-a-process-start-end-using-c-sharp-in-windows
+How to detect if a process start or end again: https://www.fluxbytes.com/csharp/how-to-know-if-a-process-exited-or-started-using-events-in-c/
+System.Management access denied: https://stackoverflow.com/questions/4158890/system-management-access-denied
+ManagementEventWatcher Access Denied again: https://social.msdn.microsoft.com/Forums/vstudio/en-US/7bb7c673-c153-4540-a3fb-36fe99fde196/managementeventwatcher-access-denied
+Get the minimize box click of a WPF window: https://stackoverflow.com/questions/938924/get-the-minimize-box-click-of-a-wpf-window
+How to force .NET application to run as administrator: https://stackoverflow.com/questions/2818179/how-do-i-force-my-net-application-to-run-as-administrator/
+Execute specified function every X seconds: https://stackoverflow.com/questions/6169288/execute-specified-function-every-x-seconds
+Post where i found another timer class with autoreset: https://stackoverflow.com/questions/475763/is-it-necessary-to-dispose-system-timers-timer-if-you-use-one-in-your-applicatio
+Edit a specific Line of a Text File: https://stackoverflow.com/questions/1971008/edit-a-specific-line-of-a-text-file-in-c-sharp
+Exclude the last character of a regex match: https://stackoverflow.com/questions/33681372/exclude-the-last-character-of-a-regex-match
+Replace a word from a specific line in a text file: https://linustechtips.com/topic/136963-c-replace-a-word-from-a-specific-line-in-a-text-file/
+Find index of a String in a String Array: https://www.codeproject.com/questions/670491/find-index-of-a-string-in-a-string-array
+Use of stopwatch for precise time measurment: https://www.codeproject.com/Articles/61964/Performance-Tests-Precise-Run-Time-Measurements-wi
+Get time in milliseconds: https://stackoverflow.com/questions/4016483/get-time-in-milliseconds-using-c-sharp
+Most accurate timer in .NET?: https://stackoverflow.com/questions/9228313/most-accurate-timer-in-net
+Disable selecting in WPF DataGrid: https://www.generacodice.com/en/articolo/476684/disable-selecting-in-wpf-datagrid
+Program Icon: https://www.pinclipart.com/maxpin/oxwJmm/
+Use application icon for notifyicon: https://stackoverflow.com/questions/11805727/have-any-way-to-use-application-icon-for-notify-icon
+Process MainModule - can I avoid Win32 exception: https://www.jscodetips.com/index.php/examples/process-mainmodule-can-i-avoid-win32-exception
+ManagementObjectSearcher used for finding process: https://stackoverflow.com/questions/44710717/c-sharp-managementobjectsearcher-used-for-finding-process-and-its-description
+Extension methods must be defined in a non-generic static class: https://stackoverflow.com/questions/6096299/extension-methods-must-be-defined-in-a-non-generic-static-class
+Convert System.Drawing.Icon to System.Media.ImageSource: https://stackoverflow.com/questions/1127647/convert-system-drawing-icon-to-system-media-imagesource
+WPF add datagrid image column: https://stackoverflow.com/questions/15683314/wpf-add-datagrid-image-column-possible
+Text alignment in a DataGrid: https://stackoverflow.com/questions/720732/text-alignment-in-a-wpf-datagrid
+The process cannot access the file 'file path' because it is being used by another process: https://stackoverflow.com/questions/26741191/ioexception-the-process-cannot-access-the-file-file-path-because-it-is-being
+
+Which windows appear in the Alt+Tab list?: https://devblogs.microsoft.com/oldnewthing/20071008-00/?p=24863
+c/c++ values and string definitions searcher: https://www.magnumdb.com/
+https://stackoverflow.com/questions/72140237/how-to-get-focused-window-handler
+https://stackoverflow.com/questions/47033552/global-hook-for-window-creation-maximise-minimise-etc-in-c-sharp
+https://stackoverflow.com/questions/6538548/c-sharp-error-cannot-use-fixed-size-buffers-contained-in-unfixed-expressions
+https://stackoverflow.com/questions/26290285/what-to-do-if-app-crashes-or-is-closed-while-writing-a-file
+https://stackoverflow.com/questions/14188965/visual-studio-will-not-give-me-the-platform-option-of-64-bit-in-configuration-ma
+https://github.com/dotnet/wpf/issues/2397
+https://stackoverflow.com/questions/57855563/how-can-i-change-the-cell-content-in-a-listview-through-code
+https://stackoverflow.com/questions/14177891/understanding-async-await-in-c-sharp
+https://stackoverflow.com/questions/11861151/find-all-files-in-a-folder
+
+ --------------------------------------------------------
+
+Some other things that i didn't end up utilizing directly at the end:
+
+https://stackoverflow.com/questions/17922725/monitor-child-processes-of-a-process
+https://stackoverflow.com/questions/26462603/detect-when-a-specific-process-creates-a-window-on-windows
+https://www.codeproject.com/Articles/18638/Using-Window-Messages-to-Implement-Global-System-H?fid=414057&df=90&mpp=25&sort=Position&spc=Relaxed&prof=True&view=Normal&fr=1#xx0xx
+http://joelabrahamsson.com/detecting-mouse-and-keyboard-input-with-net/
+https://www.damirscorner.com/blog/posts/20160207-StringsInNetAreNotNullTerminated.html
+
+ --------------------------------------------------------
+
+The Microsoft documentation helped me too with:
+
+Get current process: https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.process.getcurrentprocess?view=net-6.0
+Rename a code symbol refactoring: https://docs.microsoft.com/en-us/visualstudio/ide/reference/rename?view=vs-2022
+try-catch statements: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/try-catch
+Regex Class: https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex?view=net-6.0
+Another timer class: https://docs.microsoft.com/en-us/dotnet/api/system.threading.timer?view=net-6.0
+Elapsed time with datetime.now: https://docs.microsoft.com/en-us/dotnet/api/system.datetime.ticks?view=net-6.0
+
+ --------------------------------------------------------
+
+This doesn't include everything of course, has it would have been too time consuming for me to look every page i went to, but overall, thanks to people on
+forums like stackoverflow for teaching c#, xaml, etc... and giving code solutions in general.
