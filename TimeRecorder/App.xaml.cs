@@ -63,7 +63,7 @@ namespace TimeRecorder
             if (!File.Exists(file))
             {
                 File.AppendAllText(file,
-                    $"1" +
+                    $"50" +
                 $"\n");
             }
 
@@ -87,6 +87,8 @@ namespace TimeRecorder
 
             DirectoryInfo IconsDir = new DirectoryInfo(programPath+@"\icons");
             var plist = Processes.ProcessList;
+
+            if (!IconsDir.Exists) { return; }
 
             foreach(FileInfo file in IconsDir.GetFiles())
             {

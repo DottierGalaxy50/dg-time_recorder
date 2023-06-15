@@ -54,6 +54,7 @@ namespace TimeRecorder
             if (dialogOK == true)
             {
                 IcoDirTextBox.Text = fileDialog.FileName;
+                UseWndIconCheckBox.IsChecked = false;
             }
         }
 
@@ -61,6 +62,15 @@ namespace TimeRecorder
         {
             Regex regex = new Regex("[^0-9.]+");
             e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void WndNameTextBoxInput(object sender, TextCompositionEventArgs e)
+        {
+            UseWndCheckBox.IsChecked = true;
+        }
+        private void IcoDirTextBoxInput(object sender, TextCompositionEventArgs e)
+        {
+            UseWndIconCheckBox.IsChecked = false;
         }
 
         private void InputWaitTextChange(object sender, EventArgs e)
