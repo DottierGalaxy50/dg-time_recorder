@@ -654,7 +654,7 @@ namespace TimeRecorder
                 }
                 if (rlist.Count == 1)
                 {
-                    rtimer.Change(1000, 1000);
+                    rtimer.Change(1000, Timeout.Infinite);
                 }
             }
         }
@@ -981,8 +981,8 @@ namespace TimeRecorder
             }
         }
 
-        static public AutoResetEvent autoEvent = new AutoResetEvent(false);
-        static public Timer rtimer = new Timer(rtimer_Tick, autoEvent, Timeout.Infinite, Timeout.Infinite);
+        //static public AutoResetEvent autoEvent = new AutoResetEvent(false);
+        static public Timer rtimer = new Timer(rtimer_Tick, null, Timeout.Infinite, Timeout.Infinite);
 
         static string programPath = Directory.GetCurrentDirectory();
         static string dataFolder = @"\data";
@@ -1178,12 +1178,20 @@ namespace TimeRecorder
 
                             string pngPath = programPath + @"\icons\" + pngName + ".png";
 
-                            Directory.CreateDirectory(programPath + @"\icons\");
-                            using (var fileStream = new FileStream(pngPath, FileMode.Create))
+                            try //Had an issue with this, not anymore but i left it just to make sure it is impossible it crashes.
                             {
-                                BitmapEncoder encoder = new PngBitmapEncoder();
-                                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-                                encoder.Save(fileStream);
+                                Directory.CreateDirectory(programPath + @"\icons\");
+                                using (var fileStream = new FileStream(pngPath, FileMode.Create))
+                                {
+                                    BitmapEncoder encoder = new PngBitmapEncoder();
+                                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                                    encoder.Save(fileStream);
+                                }
+                            }
+                            catch
+                            { 
+                                fileLines[pid] = newLine; 
+                                break; 
                             }
 
                             if (TimeRecorder.MainWindow.IsOpen)
@@ -1214,6 +1222,8 @@ namespace TimeRecorder
                     Thread.Sleep(DelayOnRetry);
                 }
             }
+
+            rtimer.Change(1000, Timeout.Infinite);
         }
 
         protected override void OnExit(ExitEventArgs e)
