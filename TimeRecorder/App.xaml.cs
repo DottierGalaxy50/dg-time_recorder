@@ -1143,12 +1143,16 @@ namespace TimeRecorder
                                     pngName = p.ProcessName;
                                     hWnd = p.MainWindowHandle;
                                 }
-                                catch { break; }
+                                catch { fileLines[pid] = newLine; break; }
                             }
                             else
                             {
-                                pngName = rlist[i].WndName;
-                                hWnd = (IntPtr)rlist[i].hWnds[0];
+                                try
+                                {
+                                    pngName = rlist[i].WndName;
+                                    hWnd = (IntPtr)rlist[i].hWnds[0];
+                                }
+                                catch { fileLines[pid] = newLine; break; }
                             }
 
                             IntPtr hIcon;
