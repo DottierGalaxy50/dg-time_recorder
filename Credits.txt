@@ -61,6 +61,10 @@ https://stackoverflow.com/questions/47033552/global-hook-for-window-creation-max
 https://stackoverflow.com/questions/6538548/c-sharp-error-cannot-use-fixed-size-buffers-contained-in-unfixed-expressions
 https://stackoverflow.com/questions/26290285/what-to-do-if-app-crashes-or-is-closed-while-writing-a-file
 https://stackoverflow.com/questions/14188965/visual-studio-will-not-give-me-the-platform-option-of-64-bit-in-configuration-ma
+https://github.com/dotnet/wpf/issues/2397
+https://stackoverflow.com/questions/57855563/how-can-i-change-the-cell-content-in-a-listview-through-code
+https://stackoverflow.com/questions/14177891/understanding-async-await-in-c-sharp
+https://stackoverflow.com/questions/11861151/find-all-files-in-a-folder
 
  --------------------------------------------------------
 
