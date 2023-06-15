@@ -305,13 +305,15 @@ namespace TimeRecorder
                         {
                             long LastInputTick = Math.Max(rlist[i].LastInputKeyTick, rlist[i].LastInputMouseTick);
 
-                            elapsedTicks = (LastInputTick - rlist[i].InputKMTick) + save;
-                            newInputH = rlist[i].AddInputKMH + elapsedTicks;
-                            plist[i2].InputKMH = newInputH;
-                            plist[i2].ViewInputKMH = (float)newInputH / 3600000;
-                            //Console.WriteLine("elapsedKMTicks: " + (newInputH));
-                            //Console.WriteLine("***Removed Inputs KM*** " + i + " " + i2);
-
+                            if (SaveKey || SaveMouse)
+                            {
+                                elapsedTicks = (LastInputTick - rlist[i].InputKMTick) + save;
+                                newInputH = rlist[i].AddInputKMH + elapsedTicks;
+                                plist[i2].InputKMH = newInputH;
+                                plist[i2].ViewInputKMH = (float)newInputH / 3600000;
+                                //Console.WriteLine("elapsedKMTicks: " + (newInputH));
+                                //Console.WriteLine("***Removed Inputs KM*** " + i + " " + i2);
+                            }
                             if (!rlist[i].IsInputJoy)
                             {
                                 LastInputTick = Math.Max(LastInputTick, rlist[i].LastInputJoyTick);
