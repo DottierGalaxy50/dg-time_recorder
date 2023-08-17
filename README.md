@@ -59,9 +59,11 @@ The __"settings"__ file has only one value, it represents a __custom controller 
 
 - **A window's inputs only get recorded if it is the foreground window**, that means that even if a window is receiving inputs, they don't get recorded unless it is the foreground window.
 
-- **The program only checks if a process starts or stops once every second**, making it check more often increases CPU usage.
+- **The program only checks if a process starts or stops once every second,** making it check more often increases CPU usage. Similarly, the program saves the data every 5 seconds, this means that if the PC loses power it could lose the last 5 seconds. This doesn't happen by closing the program normally.
 
-- Temp and unused files from the "icons" and "data" folders gets deleted each time the program starts.
+- **The program creates a backup file (.bak) of the data** to avoid losing it if the PC loses power, this happens because the program attempts to write on the file and ends up writing empty bytes. When the program starts it checks if the file starts with an empty byte and in that case replaces the file with the backup.
+
+- Unused files from the "icons" folder get deleted each time the program starts.
 
 The code is kinda messy, so if you are thinking about checking it out for anything good luck lol <br />
 Credits.txt has some links to posts and people yt videos that helped me to make this program.
