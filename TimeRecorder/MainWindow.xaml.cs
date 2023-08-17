@@ -25,20 +25,47 @@ namespace TimeRecorder
         public static bool IsOpen = false;
         public static MainWindow WndObject;
 
+        static Timer WindowListLastDateRefresh;
+
         public MainWindow()
         {
             InitializeComponent();
             //InitTimer();
             //AddRunningProcessesOnStartUp();
-            App.CleanUpOnStartUp();
             LoadListIcons();
 
             IsOpen = true;
             WndObject = this;
             this.SizeToContent = SizeToContent.Width;
 
+            switch (WindowState)
+            {
+                case WindowState.Normal:
+                case WindowState.Maximized:
+                    WindowListLastDateRefresh = new Timer(RefreshWindowListLastDate, null, 0, Timeout.Infinite);
+                    break;
+
+                case WindowState.Minimized:
+                    WindowListLastDateRefresh = new Timer(RefreshWindowListLastDate, null, Timeout.Infinite, Timeout.Infinite);
+                    break;
+            }
+
             CheckAllSystemProcessesIntervals = new Timer(CheckAllSystemProcesses, null, 1000, Timeout.Infinite);
             FocusInputsIntervals = new Timer(RefreshAllFocusInputs, null, 20, Timeout.Infinite);
+        }
+
+        static public void RefreshWindowListLastDate(object stateInfo)
+        {
+            var plist = Processes.ProcessList;
+            var rlist = RunningProcesses.RunningProcessesList;
+            string currentDate = DateTime.Now.ToString();
+
+            for (int i = 0; i < rlist.Count; i++)
+            {
+                plist[rlist[i].Index].Last = currentDate;
+            }
+
+            WindowListLastDateRefresh.Change(1000, Timeout.Infinite);
         }
 
         //private Timer rtimer;
@@ -118,6 +145,7 @@ namespace TimeRecorder
                     this.ShowInTaskbar = true;
                     //rtimer.Start();
                     IsOpen = true;
+                    WindowListLastDateRefresh.Change(0, Timeout.Infinite);
                     LoadListIcons();
                     break;
 
@@ -125,8 +153,9 @@ namespace TimeRecorder
                     this.ShowInTaskbar = false;
                     //rtimer.Stop();
                     IsOpen = false;
+                    WindowListLastDateRefresh.Change(Timeout.Infinite, Timeout.Infinite);
                     UnloadListIcons();
-                    CleanUpAfterUnloadingIcons(); //We try to free some memory from the BitmapSource objects right away so it just doesn't stay there.
+                    CleanUpAfterUnloadingIcons(); //Attempt to free some memory of the BitmapSource objects right away so it just doesn't stay there.
                     if (AddProcess.IsOpen) 
                     {
                         AddProcess.WndObject.Close();
@@ -162,7 +191,7 @@ namespace TimeRecorder
             }
 
             // BitmapSource has memory issues, we have to change the source binding or replace the old column with a new one.
-            // It isn't a perfect method but it is better than nothing.
+            // This isn't a perfect solution but it is better than nothing.
             ProcessViewList.Columns[0].SetValue(System.Windows.Controls.Image.SourceProperty, null);
             ProcessViewList.Columns[0] = new DataGridTemplateColumn(){};
             ProcessViewList.UpdateLayout(); // -->https://github.com/dotnet/wpf/issues/2397
@@ -189,6 +218,29 @@ namespace TimeRecorder
             base.OnClosed(e);
             Application.Current.Shutdown();
             //rtimer.Dispose();
+        }
+
+        public static void CheckIfDataFileNeedsReplacement()
+        {
+            string programPath = Directory.GetCurrentDirectory();
+
+            if (File.Exists(programPath+@"\data\processlist.csv.bak"))
+            {
+                if (File.Exists(programPath+@"\data\processlist.csv"))
+                {
+                    byte[] fileBytes = File.ReadAllBytes(programPath+@"\data\processlist.csv");
+
+                    if (fileBytes[0] == 0)
+                    {
+                        File.Delete(programPath+@"\data\processlist.csv");
+                        File.Copy(programPath+@"\data\processlist.csv.bak", programPath+@"\data\processlist.csv");
+                    }
+                }
+                else
+                {
+                    File.Copy(programPath+@"\data\processlist.csv.bak", programPath+@"\data\processlist.csv");
+                }
+            }
         }
     }
 
@@ -251,6 +303,7 @@ namespace TimeRecorder
             string dataFolder = @"\data";
             string listFile = @"\processlist.csv";
 
+            MainWindow.CheckIfDataFileNeedsReplacement();
             Directory.CreateDirectory(programPath + dataFolder);
 
             var file = programPath + dataFolder + listFile;
@@ -399,7 +452,7 @@ namespace TimeRecorder
             set { _first = value; OnPropertyChanged("First"); }
         }
         public string _last { get; set; }
-        public string Last
+        public string Last 
         {
             get { return _last; }
             set { _last = value; OnPropertyChanged("Last"); }

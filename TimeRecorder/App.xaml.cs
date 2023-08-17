@@ -73,17 +73,14 @@ namespace TimeRecorder
 
         static public void CleanUpOnStartUp()
         {
-            string programPath = Directory.GetCurrentDirectory();
-            DirectoryInfo DataDir = new DirectoryInfo(programPath+@"\data");
-
-            foreach(FileInfo file in DataDir.GetFiles())
-            {
-                if (file.Name.ToLower().Contains(".tmp"))
-                {
-                    Console.WriteLine(file.Name);
-                    File.Delete(file.FullName);
-                }
-            }
+            //DirectoryInfo DataDir = new DirectoryInfo(programPath+@"\data");
+            //foreach (FileInfo file in DataDir.GetFiles())
+            //{
+                //if (file.Name.ToLower().Contains(".tmp"))
+                //{
+                    //File.Delete(file.FullName);
+                //}
+            //}
 
             DirectoryInfo IconsDir = new DirectoryInfo(programPath+@"\icons");
             var plist = Processes.ProcessList;
@@ -654,7 +651,7 @@ namespace TimeRecorder
                 }
                 if (rlist.Count == 1)
                 {
-                    rtimer.Change(1000, Timeout.Infinite);
+                    rtimer.Change(5000, Timeout.Infinite);
                 }
             }
         }
@@ -867,12 +864,6 @@ namespace TimeRecorder
 
                     if (rlist[i].hWnds.Count == 0)
                     {
-                        if (rlist.Count == 1)
-                        {
-                            rtimer.Change(Timeout.Infinite, Timeout.Infinite);
-                            rtimer_Tick(null);
-                        }
-
                         //long SaveTime = Environment.TickCount-rlist[i].LastInputTick;
 
                         //if (SaveTime > rlist[i].InputSaveT)
@@ -885,6 +876,12 @@ namespace TimeRecorder
                         //Console.WriteLine("***Removed Process*** " + i);
                     }
                 }
+            }
+
+            if (rlist.Count == 0)
+            {
+                rtimer_Tick(null);
+                rtimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
 
@@ -948,19 +945,18 @@ namespace TimeRecorder
                                             break;
                                         }
                                     }
-
-                                    if (rlist.Count == 0)
-                                    {
-                                        rtimer.Change(Timeout.Infinite, Timeout.Infinite);
-                                        rtimer_Tick(null);
-                                        break;
-                                    }
                                 }
                                 break;
                             }
                         }
                     }
                 }
+            }
+
+            if (rlist.Count == 0)
+            {
+                rtimer_Tick(null);
+                rtimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
 
             for (int i2 = PHooks.Count - 1; i2 > -1; i2--)
@@ -989,7 +985,7 @@ namespace TimeRecorder
         static string listFile = @"\processlist.csv";
 
         static string file = programPath + dataFolder + listFile;
-        static string tempfile = programPath + dataFolder + @"\processlist.tmp";
+        //static string tempfile = programPath + dataFolder + @"\processlist.tmp";
 
         private const int NumOfRetries = 3;
         private const int DelayOnRetry = 10;
@@ -1213,8 +1209,9 @@ namespace TimeRecorder
             {
                 try
                 {
-                    File.WriteAllLines(tempfile, fileLines);
-                    File.Replace(tempfile, file, null);
+                    File.Delete(file+".bak");
+                    File.Move(file, file+".bak");
+                    File.WriteAllLines(file, fileLines);
                     break;
                 }
                 catch (IOException) when (i2 <= NumOfRetries)
@@ -1223,7 +1220,7 @@ namespace TimeRecorder
                 }
             }
 
-            rtimer.Change(1000, Timeout.Infinite);
+            rtimer.Change(5000, Timeout.Infinite);
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -1231,7 +1228,6 @@ namespace TimeRecorder
             base.OnExit(e);
 
             _notifyIcon?.Dispose();
-            rtimer?.Dispose();
             UnhookWinEvent(FocusPEventHook);
 
             if (RunningProcesses.RunningProcessesList.Count > 0)
