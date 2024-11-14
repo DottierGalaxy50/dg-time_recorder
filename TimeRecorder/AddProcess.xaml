@@ -27,7 +27,7 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Click="AddFind_Click"
-                Content="Browser" Margin="438,38,0,0"/>
+                Content="Search" Margin="438,38,0,0"/>
 
         <Label Grid.Row="1" Grid.Column="1" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Total Hours:" Margin="0,68,0,0"/>
         <TextBox Grid.Row="1" Grid.Column="1" x:Name="HoursTextBox" TextWrapping="Wrap" Text="0.00" HorizontalAlignment="Left" VerticalAlignment="Top" MinWidth="65" MaxLength="9" Margin="83,73,0,0" PreviewTextInput="NumbericTextInput"/>
@@ -43,7 +43,7 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Click="IcoAddFind_Click"
-                Content="Browser" Margin="438,149,0,0"/>
+                Content="Search" Margin="438,149,0,0"/>
 
         <CheckBox Grid.Row="1" Grid.Column="1" x:Name="UseWndIconCheckBox" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Use the first recorded window's icon on the list instead." Margin="5,179,0,0"/>
 

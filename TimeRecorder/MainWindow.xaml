@@ -55,7 +55,7 @@
                                     Binding="{Binding ViewMinH, StringFormat=0.00}"/>
                 <DataGridTextColumn Header="Focused" FontSize="15"
                                     Binding="{Binding ViewFocusH, StringFormat=0.00}"/>
-                <DataGridTextColumn Header="+Inputs:" FontSize="15"
+                <DataGridTextColumn Header="+Inputs" FontSize="15"
                                     Binding="{Binding ViewInputH, StringFormat=0.00}"/>
                 
                 <DataGridTextColumn Header="K" FontSize="15" Binding="{Binding ViewInputKeyH, StringFormat=0.00}">
@@ -73,7 +73,7 @@
                         </Style>
                     </DataGridTextColumn.HeaderStyle>
                 </DataGridTextColumn>
-                
+
                 <DataGridTextColumn Header="K+M" FontSize="15" Binding="{Binding ViewInputKMH, StringFormat=0.00}">
                     <DataGridTextColumn.HeaderStyle>
                         <Style TargetType="{x:Type DataGridColumnHeader}">

@@ -226,19 +226,19 @@ namespace TimeRecorder
 
             if (File.Exists(programPath+@"\data\processlist.csv.bak"))
             {
-                if (File.Exists(programPath+@"\data\processlist.csv"))
+                if (File.Exists(programPath + @"\data\processlist.csv"))
                 {
-                    byte[] fileBytes = File.ReadAllBytes(programPath+@"\data\processlist.csv");
+                    byte[] fileBytes = File.ReadAllBytes(programPath + @"\data\processlist.csv");
 
                     if (fileBytes[0] == 0)
                     {
-                        File.Delete(programPath+@"\data\processlist.csv");
-                        File.Copy(programPath+@"\data\processlist.csv.bak", programPath+@"\data\processlist.csv");
+                        File.Delete(programPath + @"\data\processlist.csv");
+                        File.Copy(programPath + @"\data\processlist.csv.bak", programPath + @"\data\processlist.csv");
                     }
                 }
                 else
                 {
-                    File.Copy(programPath+@"\data\processlist.csv.bak", programPath+@"\data\processlist.csv");
+                    File.Copy(programPath + @"\data\processlist.csv.bak", programPath + @"\data\processlist.csv");
                 }
             }
         }

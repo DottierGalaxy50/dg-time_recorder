@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using Forms = System.Windows.Forms;
 using static TimeRecorder.App.NativeMethods;
 using static TimeRecorder.SystemInputsRefresh;
+using System.Runtime.InteropServices.ComTypes;
+using System.Windows.Shapes;
 
 namespace TimeRecorder
 {
@@ -880,7 +882,7 @@ namespace TimeRecorder
 
             if (rlist.Count == 0)
             {
-                rtimer_Tick(null);
+                saveListFile(false);
                 rtimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
@@ -955,7 +957,7 @@ namespace TimeRecorder
 
             if (rlist.Count == 0)
             {
-                rtimer_Tick(null);
+                saveListFile(false);
                 rtimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
 
@@ -991,6 +993,12 @@ namespace TimeRecorder
         private const int DelayOnRetry = 10;
 
         static private void rtimer_Tick(object stateInfo)
+        {
+            saveListFile(true);
+            rtimer.Change(5000, Timeout.Infinite);
+        }
+
+        static private void saveListFile(bool doBackup)
         {
             string[] fileLines = new string[] { };
 
@@ -1124,7 +1132,11 @@ namespace TimeRecorder
 
                         Processes.ProcessList[pid].Hours = newHours;
                         Processes.ProcessList[pid].ViewHours = (float)newHours / 3600000;
-                        Processes.ProcessList[pid].Last = currentDate;
+
+                        if (!TimeRecorder.MainWindow.IsOpen)
+                        {
+                            Processes.ProcessList[pid].Last = currentDate;
+                        }
 
                         if (line.Split(',').ElementAt(7) == "waitWnd")
                         {
@@ -1205,22 +1217,67 @@ namespace TimeRecorder
                 }
             }
 
-            for (int i2 = 1; i2 <= NumOfRetries; ++i2)
+            try
             {
-                try
-                {
-                    File.Delete(file+".bak");
-                    File.Move(file, file+".bak");
-                    File.WriteAllLines(file, fileLines);
-                    break;
-                }
-                catch (IOException) when (i2 <= NumOfRetries)
-                {
-                    Thread.Sleep(DelayOnRetry);
-                }
-            }
+                byte[] fileBytes = File.ReadAllBytes(file);
+                bool nullChar = false; 
 
-            rtimer.Change(5000, Timeout.Infinite);
+                for (int i = 0; i < fileBytes.Length; i++)
+                {
+                    if (fileBytes[i] == 0)
+                    {
+                        nullChar = true;
+                        //Console.WriteLine("1");
+                        break;
+                    }
+                }
+
+                if (doBackup && !nullChar)
+                {
+                    //Console.WriteLine("2");
+                    // Create a FileInfo  
+                    System.IO.FileInfo fi = new System.IO.FileInfo(file);
+                    // Check if file is there  
+                    if (fi.Exists)
+                    {
+                        // Move file with a new name. Hence renamed.
+                        File.Delete(file + ".bak");
+                        fi.MoveTo(  file + ".bak");
+                        //Console.WriteLine("3");
+                    }
+                    doBackup = false;
+                }
+                //Console.WriteLine("E");
+                System.IO.FileInfo fi2 = new System.IO.FileInfo(file);
+                if (!fi2.Exists)
+                {
+                    using (File.Create(file)){}
+                    //Console.WriteLine("4");
+                }
+                else
+                {
+                    FileStream fs = File.Open(file, FileMode.Open);
+                    fs.SetLength(0);
+                    fs.Close();
+                    //Console.WriteLine("5");
+                }
+
+                //for (int i = 0; i < fileLines.Length; i++)
+                //{
+                    string str = string.Join("\n", fileLines + "\n");
+                    byte[] data = new UTF8Encoding(true).GetBytes(str);
+                    using (FileStream fs = new FileStream(file, FileMode.Append, FileAccess.Write,
+                                                    FileShare.Read, data.Length, FileOptions.WriteThrough))
+                    {
+                        fs.Write(data, 0, data.Length);
+                        //Console.WriteLine("6");
+                    }
+                //}
+            }
+            catch (IOException)
+            {
+                return;
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -1228,13 +1285,13 @@ namespace TimeRecorder
             base.OnExit(e);
 
             _notifyIcon?.Dispose();
+            rtimer?.Dispose();
             UnhookWinEvent(FocusPEventHook);
 
             if (RunningProcesses.RunningProcessesList.Count > 0)
             {
-                rtimer_Tick(null);
+                saveListFile(false);
             }
-            rtimer?.Dispose();
         }
     }
 
