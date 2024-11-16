@@ -16,6 +16,7 @@ using static TimeRecorder.App.NativeMethods;
 using static TimeRecorder.SystemInputsRefresh;
 using System.Runtime.InteropServices.ComTypes;
 using System.Windows.Shapes;
+using System.Data.SqlTypes;
 
 namespace TimeRecorder
 {
@@ -1264,7 +1265,9 @@ namespace TimeRecorder
 
                 //for (int i = 0; i < fileLines.Length; i++)
                 //{
-                    string str = string.Join("\n", fileLines + "\n");
+                    string str = string.Join("\n", fileLines);
+                    str = str + "\n";
+                    
                     byte[] data = new UTF8Encoding(true).GetBytes(str);
                     using (FileStream fs = new FileStream(file, FileMode.Append, FileAccess.Write,
                                                     FileShare.Read, data.Length, FileOptions.WriteThrough))

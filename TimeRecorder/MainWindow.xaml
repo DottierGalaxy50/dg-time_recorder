@@ -98,7 +98,7 @@
         </DataGrid>
 
         <TextBlock Grid.Row="1" Grid.Column="1" FontSize="15" Text="Records and saves the running time of the elements on the list."/>
-        <TextBlock Grid.Row="3" Grid.Column="1" FontSize="10" HorizontalAlignment="Right" Text="ver 1.0.1  By DottierGalaxy50" Foreground="Gray"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" FontSize="10" HorizontalAlignment="Right" Text="ver 1.0.2  By DottierGalaxy50" Foreground="Gray"/>
 
         <Button Grid.Row="1" Grid.Column="1" x:Name="AddButton"
                 Width="100"
